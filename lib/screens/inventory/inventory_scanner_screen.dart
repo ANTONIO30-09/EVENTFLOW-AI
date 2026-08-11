@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/scan_item_model.dart';
-import '../../data/services/mock_data_service.dart';
+
 
 class InventoryScannerScreen extends StatefulWidget {
   const InventoryScannerScreen({super.key});
@@ -16,7 +16,7 @@ class _InventoryScannerScreenState extends State<InventoryScannerScreen> {
   @override
   void initState() {
     super.initState();
-    recentScans = MockDataService.getRecentScans();
+    recentScans = [];
   }
 
   void _simulateScan() {

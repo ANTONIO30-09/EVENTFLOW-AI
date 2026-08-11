@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/guest_model.dart';
-import '../../data/services/mock_data_service.dart';
 import '../check_in/check_in_success_screen.dart';
 
 class GuestControlScreen extends StatefulWidget {
@@ -13,15 +12,15 @@ class GuestControlScreen extends StatefulWidget {
 }
 
 class _GuestControlScreenState extends State<GuestControlScreen> {
-  late List<Guest> allGuests;
-  List<Guest> filteredGuests = [];
+  late List<GuestModel> allGuests;
+  List<GuestModel> filteredGuests = [];
   String _filter = 'todos';
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    allGuests = MockDataService.getGuestsForEvent(widget.eventId);
+    allGuests = []; // TODO: reemplazar con datos reales de database_service
     filteredGuests = List.from(allGuests);
     _searchController.addListener(_filterGuests);
   }
@@ -32,8 +31,8 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
       filteredGuests = allGuests.where((guest) {
         final matchesSearch = guest.name.toLowerCase().contains(query);
         final matchesFilter = _filter == 'todos' ||
-            (_filter == 'ingresados' && guest.hasCheckedIn) ||
-            (_filter == 'pendientes' && !guest.hasCheckedIn);
+            (_filter == 'ingresados' && guest.checkedIn) ||
+            (_filter == 'pendientes' && !guest.checkedIn);
         return matchesSearch && matchesFilter;
       }).toList();
     });
@@ -44,16 +43,8 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
     _filterGuests();
   }
 
-  void _checkInGuest(Guest guest) {
-    final updatedGuest = Guest(
-      id: guest.id,
-      name: guest.name,
-      table: guest.table,
-      group: guest.group,
-      companions: guest.companions,
-      hasCheckedIn: true,
-      checkInTime: DateTime.now().toString().substring(11, 19),
-    );
+  void _checkInGuest(GuestModel guest) {
+    final updatedGuest = guest.markCheckedIn();
     final index = allGuests.indexWhere((g) => g.id == guest.id);
     if (index != -1) allGuests[index] = updatedGuest;
     _filterGuests();
@@ -66,7 +57,7 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
   @override
   Widget build(BuildContext context) {
     final total = allGuests.length;
-    final ingresados = allGuests.where((g) => g.hasCheckedIn).length;
+    final ingresados = allGuests.where((g) => g.checkedIn).length;
     final pendientes = total - ingresados;
 
     return Scaffold(
@@ -116,8 +107,8 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
                   child: ListTile(
                     contentPadding: const EdgeInsets.all(12),
                     title: Text(guest.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text('${guest.table} • ${guest.group} • +${guest.companions} acompañante${guest.companions != 1 ? 's' : ''}'),
-                    trailing: guest.hasCheckedIn
+                    subtitle: Text('${guest.tableNumber} • ${guest.familyGroup} • +${guest.companions} acompañante${guest.companions != 1 ? 's' : ''}'),
+                    trailing: guest.checkedIn 
                         ? const Icon(Icons.check_circle, color: Colors.green)
                         : TextButton(
                             onPressed: () => _checkInGuest(guest),

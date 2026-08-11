@@ -3,7 +3,7 @@ import '../../core/constants/app_colors.dart';
 import '../../data/models/guest_model.dart';
 
 class CheckInSuccessScreen extends StatelessWidget {
-  final Guest guest;
+  final GuestModel guest;
   const CheckInSuccessScreen({super.key, required this.guest});
 
   @override
@@ -34,13 +34,15 @@ class CheckInSuccessScreen extends StatelessWidget {
                   children: [
                     _infoRow('Nombre', guest.name),
                     const Divider(),
-                    _infoRow('Ubicación', guest.table),
+                    _infoRow('Ubicación', guest.tableNumber),
                     const Divider(),
-                    _infoRow('Grupo', guest.group),
+                    _infoRow('Grupo', guest.familyGroup),
                     const Divider(),
                     _infoRow('Acompañante', '+${guest.companions}'),
                     const Divider(),
-                    _infoRow('Ingreso', guest.checkInTime ?? '--:--:--'),
+                    _infoRow('Ingreso', guest.checkInTime != null
+    ? guest.checkInTime!.toString().substring(11, 19)
+    : '--:--:--'),
                   ],
                 ),
               ),

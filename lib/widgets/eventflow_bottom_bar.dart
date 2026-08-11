@@ -1,7 +1,7 @@
 // lib/widgets/eventflow_bottom_bar.dart
 
 import 'package:flutter/material.dart';
-import 'package:eventflow_ai/core/theme/app_theme.dart';
+import 'package:eventflow_ai/core/constants/app_colors.dart';
 
 class EventFlowBottomBar extends StatelessWidget {
   final int currentIndex;
