@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'core/theme/app_theme.dart';
-// import 'screens/login/login_screen.dart'; // 👈 Lo guardamos para después
-import 'package:eventflow_ai/screens/home/home_screen.dart';
+import 'firebase_options.dart';
+import 'data/services/auth_service.dart';
+import 'screens/login/login_screen.dart';
+import 'screens/home/home_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -16,7 +23,31 @@ class MyApp extends StatelessWidget {
       title: 'EventFlow AI',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const HomeScreen(), // 👈 Apuntamos a la lista de eventos para ver cómo quedó
+      home: const AuthGate(),
+    );
+  }
+}
+
+/// Decide qué pantalla mostrar según si hay sesión activa o no.
+/// Escucha authStateChanges: cuando el login tiene éxito, cambia
+/// solo a HomeScreen, sin necesidad de navegación manual.
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final authService = AuthService();
+    return StreamBuilder(
+      stream: authService.authStateChanges,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+        if (snapshot.hasData) {
+          return const HomeScreen();
+        }
+        return const LoginScreen();
+      },
     );
   }
 }

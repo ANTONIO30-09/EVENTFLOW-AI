@@ -1,12 +1,66 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/constants/app_colors.dart';
+import '../../data/services/auth_service.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) 
-  {
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final AuthService _authService = AuthService();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+  Future<void> _handleLogin() async {
+    if (_emailController.text.trim().isEmpty || _passwordController.text.isEmpty) {
+      _showError('Ingresa usuario y contraseña');
+      return;
+    }
+    setState(() => _isLoading = true);
+    try {
+      await _authService.signIn(_emailController.text.trim(), _passwordController.text);
+    } on FirebaseAuthException catch (e) {
+      if (mounted) _showError(_mensajeError(e.code));
+    } catch (e) {
+      if (mounted) _showError('Ocurrió un error inesperado: $e');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  String _mensajeError(String code) {
+    switch (code) {
+      case 'user-not-found':
+        return 'No existe una cuenta con ese correo';
+      case 'wrong-password':
+      case 'invalid-credential':
+        return 'Contraseña incorrecta';
+      case 'invalid-email':
+        return 'Correo inválido';
+      default:
+        return 'No se pudo iniciar sesión ($code)';
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.redAccent),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -17,7 +71,6 @@ class LoginScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo Oficial
                   Image.asset(
                     'assets/images/logo.png',
                     height: 180,
@@ -26,40 +79,33 @@ class LoginScreen extends StatelessWidget {
                     },
                   ),
                   const SizedBox(height: 25),
-                  
-                  // Título principal (Itálico y Negrita)
                   const Text(
                     'EventFlow AI',
                     style: TextStyle(
-                      fontSize: 36, 
-                      fontWeight: FontWeight.w900, 
-                      fontStyle: FontStyle.italic, 
+                      fontSize: 36,
+                      fontWeight: FontWeight.w900,
+                      fontStyle: FontStyle.italic,
                       color: AppColors.textDark,
                       letterSpacing: 0.5,
                     ),
                   ),
                   const SizedBox(height: 5),
-                  
-                  // Subtítulo
                   const Text(
                     'Sistema de Logística de Eventos',
                     style: TextStyle(
-                      fontSize: 18, 
-                       color: AppColors.textMuted,
+                      fontSize: 18,
+                      color: AppColors.textMuted,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 45),
 
-                  // Input de Usuario
-                  _buildInputField(hintText: 'USUARIO'),
+                  _buildInputField(controller: _emailController, hintText: 'USUARIO'),
                   const SizedBox(height: 20),
 
-                  // Input de Contraseña
-                  _buildInputField(hintText: 'CONTRASEÑA', isObscure: true),
+                  _buildInputField(controller: _passwordController, hintText: 'CONTRASEÑA', isObscure: true),
                   const SizedBox(height: 45),
 
-                  // Botón Iniciar Sesión (Ovalado, crema claro con sombra tenue)
                   Container(
                     decoration: BoxDecoration(
                       boxShadow: [
@@ -71,11 +117,9 @@ class LoginScreen extends StatelessWidget {
                       ],
                     ),
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Aquí conectarás la lógica o navegación posterior
-                      },
+                      onPressed: _isLoading ? null : _handleLogin,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFBF7EE), // Botón blanquecino/crema
+                        backgroundColor: const Color(0xFFFBF7EE),
                         foregroundColor: AppColors.textDark,
                         padding: const EdgeInsets.symmetric(horizontal: 38, vertical: 14),
                         shape: RoundedRectangleBorder(
@@ -84,21 +128,26 @@ class LoginScreen extends StatelessWidget {
                         elevation: 0,
                         side: BorderSide(color: Colors.black.withValues(alpha: 0.1), width: 1),
                       ),
-                      child: const Text(
-                        'Iniciar Sesion', 
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textDark),
+                            )
+                          : const Text(
+                              'Iniciar Sesion',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
                     ),
                   ),
                   const SizedBox(height: 25),
 
-                  // Enlace de recuperación (Respetando el texto exacto de tu diseño)
                   TextButton(
                     onPressed: () {},
                     child: const Text(
-                      '¿Olvidadte tu Contraseña ?', 
+                      '¿Olvidadte tu Contraseña ?',
                       style: TextStyle(
-                        color: AppColors.textDark, 
+                        color: AppColors.textDark,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
@@ -113,8 +162,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  // Generador de campos de texto idénticos a tus campos ovalados
-  Widget _buildInputField({required String hintText, bool isObscure = false}) {
+  Widget _buildInputField({required TextEditingController controller, required String hintText, bool isObscure = false}) {
     return Container(
       decoration: BoxDecoration(
         boxShadow: [
@@ -126,6 +174,7 @@ class LoginScreen extends StatelessWidget {
         ],
       ),
       child: TextField(
+        controller: controller,
         obscureText: isObscure,
         textAlign: TextAlign.center,
         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
@@ -133,12 +182,12 @@ class LoginScreen extends StatelessWidget {
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: const TextStyle(
-            color: Colors.white, 
+            color: Colors.white,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.2,
           ),
           filled: true,
-          fillColor: AppColors.surfaceCard, // Color crema intermedio de los inputs
+          fillColor: AppColors.surfaceCard,
           contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(35),
