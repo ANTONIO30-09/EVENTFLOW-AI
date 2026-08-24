@@ -3,6 +3,7 @@ import '../../core/constants/app_colors.dart';
 import '../../data/models/event_model.dart';
 import '../../data/models/guest_model.dart';
 import '../../data/services/database_service.dart';
+import '../guests/guest_control_screen.dart';
 
 class EventDetailScreen extends StatelessWidget {
   final EventModel event;
@@ -70,7 +71,27 @@ class EventDetailScreen extends StatelessWidget {
                       _buildStatCard('—', 'Items'),
                     ],
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => GuestControlScreen(eventId: event.id)),
+                        );
+                      },
+                      icon: const Icon(Icons.person_search),
+                      label: const Text('Control de invitados'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
 
                   const Text(
                     'PROGRESO DEL EVENTO',
