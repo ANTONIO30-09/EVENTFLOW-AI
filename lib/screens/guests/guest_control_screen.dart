@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/guest_model.dart';
+import '../../data/services/database_service.dart';
 import '../check_in/check_in_success_screen.dart';
 
 class GuestControlScreen extends StatefulWidget {
@@ -12,42 +13,35 @@ class GuestControlScreen extends StatefulWidget {
 }
 
 class _GuestControlScreenState extends State<GuestControlScreen> {
-  late List<GuestModel> allGuests;
-  List<GuestModel> filteredGuests = [];
-  String _filter = 'todos';
+  final DatabaseService _databaseService = DatabaseService();
   final TextEditingController _searchController = TextEditingController();
+
+  String _filter = 'todos';
 
   @override
   void initState() {
     super.initState();
-    allGuests = []; // TODO: reemplazar con datos reales de database_service
-    filteredGuests = List.from(allGuests);
-    _searchController.addListener(_filterGuests);
+    _searchController.addListener(_onSearchChanged);
   }
 
-  void _filterGuests() {
-    final query = _searchController.text.toLowerCase();
-    setState(() {
-      filteredGuests = allGuests.where((guest) {
-        final matchesSearch = guest.name.toLowerCase().contains(query);
-        final matchesFilter = _filter == 'todos' ||
-            (_filter == 'ingresados' && guest.checkedIn) ||
-            (_filter == 'pendientes' && !guest.checkedIn);
-        return matchesSearch && matchesFilter;
-      }).toList();
-    });
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    setState(() {});
   }
 
   void _updateFilter(String filter) {
     setState(() => _filter = filter);
-    _filterGuests();
   }
 
-  void _checkInGuest(GuestModel guest) {
+  Future<void> _checkInGuest(GuestModel guest) async {
     final updatedGuest = guest.markCheckedIn();
-    final index = allGuests.indexWhere((g) => g.id == guest.id);
-    if (index != -1) allGuests[index] = updatedGuest;
-    _filterGuests();
+    await _databaseService.checkInGuest(guest);
+    if (!mounted) return;
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => CheckInSuccessScreen(guest: updatedGuest)),
@@ -56,10 +50,6 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final total = allGuests.length;
-    final ingresados = allGuests.where((g) => g.checkedIn).length;
-    final pendientes = total - ingresados;
-
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -68,59 +58,95 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Buscar por nombre',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
+      body: StreamBuilder<List<GuestModel>>(
+        stream: _databaseService.streamGuestsForEvent(widget.eventId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Error al cargar invitados: ${snapshot.error}'),
+            );
+          }
+
+          final guests = snapshot.data ?? [];
+          final query = _searchController.text.toLowerCase();
+          final filteredGuests = guests.where((guest) {
+            final matchesSearch = guest.name.toLowerCase().contains(query);
+            final matchesFilter = _filter == 'todos' ||
+                (_filter == 'ingresados' && guest.checkedIn) ||
+                (_filter == 'pendientes' && !guest.checkedIn);
+            return matchesSearch && matchesFilter;
+          }).toList();
+
+          final total = guests.length;
+          final ingresados = guests.where((g) => g.checkedIn).length;
+          final pendientes = total - ingresados;
+
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
                   children: [
-                    _filterButton('Todos ($total)', 'todos'),
-                    const SizedBox(width: 8),
-                    _filterButton('Ingresados ($ingresados)', 'ingresados'),
-                    const SizedBox(width: 8),
-                    _filterButton('Pendientes ($pendientes)', 'pendientes'),
+                    TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Buscar por nombre',
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        _filterButton('Todos ($total)', 'todos'),
+                        const SizedBox(width: 8),
+                        _filterButton('Ingresados ($ingresados)', 'ingresados'),
+                        const SizedBox(width: 8),
+                        _filterButton('Pendientes ($pendientes)', 'pendientes'),
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: filteredGuests.length,
-              itemBuilder: (context, index) {
-                final guest = filteredGuests[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(12),
-                    title: Text(guest.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text('${guest.tableNumber} • ${guest.familyGroup} • +${guest.companions} acompañante${guest.companions != 1 ? 's' : ''}'),
-                    trailing: guest.checkedIn 
-                        ? const Icon(Icons.check_circle, color: Colors.green)
-                        : TextButton(
-                            onPressed: () => _checkInGuest(guest),
-                            style: TextButton.styleFrom(foregroundColor: Colors.black),
-                            child: const Text('Check-in'),
-                          ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+              ),
+              Expanded(
+                child: filteredGuests.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'No hay invitados para los filtros seleccionados.',
+                          style: TextStyle(color: AppColors.textMuted, fontSize: 14),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: filteredGuests.length,
+                        itemBuilder: (context, index) {
+                          final guest = filteredGuests[index];
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.all(12),
+                              title: Text(guest.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              subtitle: Text('${guest.tableNumber} • ${guest.familyGroup} • +${guest.companions} acompañante${guest.companions != 1 ? 's' : ''}'),
+                              trailing: guest.checkedIn
+                                  ? const Icon(Icons.check_circle, color: Colors.green)
+                                  : TextButton(
+                                      onPressed: () => _checkInGuest(guest),
+                                      style: TextButton.styleFrom(foregroundColor: Colors.black),
+                                      child: const Text('Check-in'),
+                                    ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          );
+        },
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
