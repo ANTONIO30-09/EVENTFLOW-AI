@@ -1,0 +1,39 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "eventflow-ai-b36a8",
+          "appId": "1:994717544235:android:26db00793e9ec323945f6e",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "eventflow-ai-b36a8",
+          "configurations": {
+            "android": "1:994717544235:android:26db00793e9ec323945f6e",
+            "ios": "1:994717544235:ios:c7544b78af5c7886945f6e",
+            "macos": "1:994717544235:ios:c7544b78af5c7886945f6e",
+            "web": "1:994717544235:web:14d66489da772af1945f6e",
+            "windows": "1:994717544235:web:597c1583b8e7ac51945f6e"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

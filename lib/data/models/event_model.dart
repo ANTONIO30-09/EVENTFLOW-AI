@@ -23,7 +23,7 @@ class EventModel {
       date: DateTime.tryParse(map['date'] as String? ?? '') ?? DateTime.now(),
       location: map['location'] as String? ?? '',
       status: map['status'] as String? ?? 'planificacion',
-      guestCount: map['guestCount'] as int? ?? 0,
+      guestCount: int.tryParse(map['guestCount'].toString()) ?? 0,
     );
   }
 

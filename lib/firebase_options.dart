@@ -41,49 +41,44 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCEwPIH9Iv9aX-H9NSj61bMcFvOhbSmyr0',
-    appId: '1:1025713985015:web:62fe392ae28aedc30f8af2',
-    messagingSenderId: '1025713985015',
-    projectId: 'eventflow-ai-779c8',
-    authDomain: 'eventflow-ai-779c8.firebaseapp.com',
-    storageBucket: 'eventflow-ai-779c8.firebasestorage.app',
-    measurementId: 'G-YXX7WLGJB8',
+    apiKey: 'AIzaSyCnLABnoHKvcVgeouH2PCa1d3W59XeVhIA',
+    appId: '1:994717544235:web:14d66489da772af1945f6e',
+    messagingSenderId: '994717544235',
+    projectId: 'eventflow-ai-b36a8',
+    authDomain: 'eventflow-ai-b36a8.firebaseapp.com',
+    storageBucket: 'eventflow-ai-b36a8.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBF1oJCnAfoTGh57CBXQPeS66KxchLXI_g',
-    appId: '1:1025713985015:android:2f94f0baffde7e820f8af2',
-    messagingSenderId: '1025713985015',
-    projectId: 'eventflow-ai-779c8',
-    storageBucket: 'eventflow-ai-779c8.firebasestorage.app',
+    apiKey: 'AIzaSyDNK0ghNVXKkkw7pdXw5P8S24R6E62X5Qw',
+    appId: '1:994717544235:android:26db00793e9ec323945f6e',
+    messagingSenderId: '994717544235',
+    projectId: 'eventflow-ai-b36a8',
+    storageBucket: 'eventflow-ai-b36a8.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBCMCnLlchn2oj1FT-HZvBLsiMLXx6jC1s',
-    appId: '1:1025713985015:ios:6bb6bf99267c35820f8af2',
-    messagingSenderId: '1025713985015',
-    projectId: 'eventflow-ai-779c8',
-    storageBucket: 'eventflow-ai-779c8.firebasestorage.app',
+    apiKey: 'AIzaSyDnvrWP0Qxw-msvOE4Qp4sTvg_i3k2u_SE',
+    appId: '1:994717544235:ios:c7544b78af5c7886945f6e',
+    messagingSenderId: '994717544235',
+    projectId: 'eventflow-ai-b36a8',
+    storageBucket: 'eventflow-ai-b36a8.firebasestorage.app',
     iosBundleId: 'com.example.eventflowAi',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBCMCnLlchn2oj1FT-HZvBLsiMLXx6jC1s',
-    appId: '1:1025713985015:ios:6bb6bf99267c35820f8af2',
-    messagingSenderId: '1025713985015',
-    projectId: 'eventflow-ai-779c8',
-    storageBucket: 'eventflow-ai-779c8.firebasestorage.app',
+    apiKey: 'AIzaSyDnvrWP0Qxw-msvOE4Qp4sTvg_i3k2u_SE',
+    appId: '1:994717544235:ios:c7544b78af5c7886945f6e',
+    messagingSenderId: '994717544235',
+    projectId: 'eventflow-ai-b36a8',
+    storageBucket: 'eventflow-ai-b36a8.firebasestorage.app',
     iosBundleId: 'com.example.eventflowAi',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCEwPIH9Iv9aX-H9NSj61bMcFvOhbSmyr0',
-    appId: '1:1025713985015:web:7717a544676cf11a0f8af2',
-    messagingSenderId: '1025713985015',
-    projectId: 'eventflow-ai-779c8',
-    authDomain: 'eventflow-ai-779c8.firebaseapp.com',
-    storageBucket: 'eventflow-ai-779c8.firebasestorage.app',
-    measurementId: 'G-0TF1XSHBF0',
+    apiKey: 'AIzaSyCnLABnoHKvcVgeouH2PCa1d3W59XeVhIA',
+    appId: '1:994717544235:web:597c1583b8e7ac51945f6e',
+    messagingSenderId: '994717544235',
+    projectId: 'eventflow-ai-b36a8',
+    authDomain: 'eventflow-ai-b36a8.firebaseapp.com',
+    storageBucket: 'eventflow-ai-b36a8.firebasestorage.app',
   );
-
 }

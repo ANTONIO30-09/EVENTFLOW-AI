@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import 'event_detail_screen.dart'; // 👈 Importación agregada para la navegación
+import '../../data/models/event_model.dart';
+import '../../data/services/database_service.dart';
+import 'event_detail_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final databaseService = DatabaseService();
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -15,40 +19,22 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Encabezado de Bienvenida
               const Text(
                 'Bienvenido.',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textDark,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.textDark),
               ),
               const Text(
                 'Antonio Garcia.',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textDark,
-                  height: 1.1,
-                ),
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.textDark, height: 1.1),
               ),
               const Text(
                 'Personal de Campo',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textMuted,
-                ),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.textMuted),
               ),
               const SizedBox(height: 20),
 
-              // Barra de Búsqueda (Cápsula Negra)
               Container(
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(30),
-                ),
+                decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(30)),
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: const TextField(
                   style: TextStyle(color: Colors.white),
@@ -62,131 +48,73 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 25),
 
-              // Listado de Eventos (Scrollable)
+              // Listado de eventos real, conectado a Firestore.
               Expanded(
-                child: ListView(
-                  physics: const BouncingScrollPhysics(),
-                  children: [
-                    const Text(
-                      'Hoy - Viernes 24 Abril',
-                      style: TextStyle(
-                        color: Colors.black38,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    
-                    // Tarjeta: Boda Señor Alberto Gonzales
-                    _buildEventCard(
-                      title: 'Boda Señor\nAlberto\nGonzales',
-                      timeInfo: '19:00 Salon Principal 100 inivitados',
-                      status: 'En curso',
-                      isActive: true,
-                      context: context, // 👈 Context asignado
-                    ),
-                    const SizedBox(height: 25),
-
-                    const Text(
-                      'Proximos Eventos',
-                      style: TextStyle(
-                        color: Colors.black38,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Tarjeta: 15 Años Joven Celeste Garcia
-                    _buildEventCard(
-                      title: '15 Años\nJoven Celeste\nGarcia',
-                      timeInfo: 'Domigo 26 Abr 20:00 Salon Principal 45 inivitados',
-                      status: 'Proximo',
-                      isActive: false,
-                      context: context, // 👈 Context asignado
-                    ),
-                    const SizedBox(height: 15),
-
-                    // Tarjeta: Evento Empresarial ELFEC
-                    _buildEventCard(
-                      title: 'Evento\nEmpresarial\nELFEC',
-                      timeInfo: 'Martes 28 Abr 21:00 Salon Principal 120 inivitados',
-                      status: 'Proximo',
-                      isActive: false,
-                      context: context, // 👈 Context asignado
-                    ),
-                    const SizedBox(height: 15),
-
-                    // Tarjeta: Graduacion Joven Eric Morales
-                    _buildEventCard(
-                      title: 'Graduacion\nJoven\nEric Morales',
-                      timeInfo: 'Sabado 2 May 19:00 Salon Principal 50 inivitados',
-                      status: 'Proximo',
-                      isActive: false,
-                      context: context, // 👈 Context asignado
-                    ),
-                  ],
+                child: StreamBuilder<List<EventModel>>(
+                  stream: databaseService.streamEvents(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error al cargar eventos: ${snapshot.error}'));
+                    }
+                    final events = snapshot.data ?? [];
+                    if (events.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          'Todavía no hay eventos registrados.',
+                          style: TextStyle(color: AppColors.textMuted, fontSize: 14),
+                        ),
+                      );
+                    }
+                    return ListView.separated(
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: events.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 15),
+                      itemBuilder: (context, index) {
+                        final event = events[index];
+                        return _buildEventCard(event: event, context: context);
+                      },
+                    );
+                  },
                 ),
               ),
             ],
           ),
         ),
       ),
-      
-      // Barra de Navegación Inferior idéntica al Mockup
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
-  // Constructor de las Tarjetas de Eventos con su degradado y bordes particulares
-  Widget _buildEventCard({
-    required String title,
-    required String timeInfo,
-    required String status,
-    required bool isActive,
-    required BuildContext context, // 👈 Parámetro requerido agregado con éxito
-  }) {
+  Widget _buildEventCard({required EventModel event, required BuildContext context}) {
+    final statusLabel = switch (event.status) {
+      'en_curso' => 'En curso',
+      'finalizado' => 'Finalizado',
+      _ => 'Próximo',
+    };
+
     return GestureDetector(
       onTap: () {
-        // Si el título contiene 'Alberto', ejecutamos el salto de pantalla
-        if (title.contains('Alberto')) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const EventDetailScreen()),
-          );
-        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => EventDetailScreen(event: event)),
+        );
       },
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(18),
           gradient: const LinearGradient(
-            colors: [
-              Color(0xFFC4BDB0), // Tono grisáceo/crema del mockup
-              Color(0xFF9E988F),
-            ],
+            colors: [Color(0xFFC4BDB0), Color(0xFF9E988F)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 6),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 6))],
         ),
         child: Stack(
           children: [
-            // Línea negra vertical distintiva al lado izquierdo
-            Positioned(
-              left: 0,
-              top: 15,
-              bottom: 15,
-              child: Container(
-                width: 4,
-                color: Colors.black,
-              ),
-            ),
+            Positioned(left: 0, top: 15, bottom: 15, child: Container(width: 4, color: Colors.black)),
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
@@ -198,41 +126,21 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          title,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            height: 1.1,
-                          ),
+                          event.name,
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black, height: 1.1),
                         ),
                       ),
-                      // Badge de Estado (En curso / Proximo)
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          status,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                        decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)),
+                        child: Text(statusLabel, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500)),
                       ),
                     ],
                   ),
                   const SizedBox(height: 15),
                   Text(
-                    timeInfo,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
+                    '${event.location} • ${event.guestCount} invitados',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87),
                   ),
                 ],
               ),
@@ -243,13 +151,10 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Barra de navegación personalizada
   Widget _buildBottomNavigationBar() {
     return Container(
       height: 80,
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.black12, width: 1.5)),
-      ),
+      decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.black12, width: 1.5))),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -266,22 +171,11 @@ class HomeScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          width: 75,
-          height: 12,
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.black : const Color(0xFFB0B0B0),
-            borderRadius: BorderRadius.circular(6),
-          ),
+          width: 75, height: 12,
+          decoration: BoxDecoration(color: isSelected ? Colors.black : const Color(0xFFB0B0B0), borderRadius: BorderRadius.circular(6)),
         ),
         const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: isSelected ? Colors.black : const Color(0xFFB0B0B0),
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isSelected ? Colors.black : const Color(0xFFB0B0B0))),
       ],
     );
   }
