@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/event_model.dart';
 import '../../data/services/database_service.dart';
+import '../inventory/inventory_scanner_screen.dart';
+import '../profile/profile_screen.dart';
 import 'event_detail_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -48,7 +50,6 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 25),
 
-              // Listado de eventos real, conectado a Firestore.
               Expanded(
                 child: StreamBuilder<List<EventModel>>(
                   stream: databaseService.streamEvents(),
@@ -84,7 +85,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      bottomNavigationBar: _buildBottomNavigationBar(context),
     );
   }
 
@@ -151,32 +152,49 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomNavigationBar() {
+  Widget _buildBottomNavigationBar(BuildContext context) {
     return Container(
       height: 80,
       decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.black12, width: 1.5))),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildNavItem(label: 'Eventos', isSelected: true),
-          _buildNavItem(label: 'Inventario', isSelected: false),
-          _buildNavItem(label: 'Perfil', isSelected: false),
+          _buildNavItem(label: 'Eventos', isSelected: true, onTap: () {}),
+          _buildNavItem(
+            label: 'Inventario',
+            isSelected: false,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const InventoryScannerScreen()),
+            ),
+          ),
+          _buildNavItem(
+            label: 'Perfil',
+            isSelected: false,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildNavItem({required String label, required bool isSelected}) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          width: 75, height: 12,
-          decoration: BoxDecoration(color: isSelected ? Colors.black : const Color(0xFFB0B0B0), borderRadius: BorderRadius.circular(6)),
-        ),
-        const SizedBox(height: 4),
-        Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isSelected ? Colors.black : const Color(0xFFB0B0B0))),
-      ],
+  Widget _buildNavItem({required String label, required bool isSelected, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 75, height: 12,
+            decoration: BoxDecoration(color: isSelected ? Colors.black : const Color(0xFFB0B0B0), borderRadius: BorderRadius.circular(6)),
+          ),
+          const SizedBox(height: 4),
+          Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isSelected ? Colors.black : const Color(0xFFB0B0B0))),
+        ],
+      ),
     );
   }
 }
