@@ -4,6 +4,8 @@ import '../../data/models/event_model.dart';
 import '../../data/models/guest_model.dart';
 import '../../data/services/database_service.dart';
 import '../guests/guest_control_screen.dart';
+import '../inventory/inventory_scanner_screen.dart';
+import '../profile/profile_screen.dart';
 
 class EventDetailScreen extends StatelessWidget {
   final EventModel event;
@@ -174,12 +176,18 @@ class EventDetailScreen extends StatelessWidget {
           _buildNavItem(
             label: 'Inventario',
             isSelected: false,
-            onTap: () => Navigator.pushNamed(context, '/inventory'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const InventoryScannerScreen()),
+            ),
           ),
           _buildNavItem(
             label: 'Perfil',
             isSelected: false,
-            onTap: () => Navigator.pushNamed(context, '/profile'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            ),
           ),
         ],
       ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/event_model.dart';
 import '../../data/services/database_service.dart';
+import '../inventory/inventory_scanner_screen.dart';
+import '../profile/profile_screen.dart';
 import 'event_detail_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -161,12 +163,18 @@ class HomeScreen extends StatelessWidget {
           _buildNavItem(
             label: 'Inventario',
             isSelected: false,
-            onTap: () => Navigator.pushNamed(context, '/inventory'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const InventoryScannerScreen()),
+            ),
           ),
           _buildNavItem(
             label: 'Perfil',
             isSelected: false,
-            onTap: () => Navigator.pushNamed(context, '/profile'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            ),
           ),
         ],
       ),
