@@ -5,6 +5,8 @@ import 'firebase_options.dart';
 import 'data/services/auth_service.dart';
 import 'screens/login/login_screen.dart';
 import 'screens/home/home_screen.dart';
+import 'screens/inventory/inventory_scanner_screen.dart';
+import 'screens/profile/profile_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +26,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       home: const AuthGate(),
+      routes: {
+        '/inventory': (_) => const InventoryScannerScreen(),
+        '/profile': (_) => const ProfileScreen(),
+      },
     );
   }
 }
