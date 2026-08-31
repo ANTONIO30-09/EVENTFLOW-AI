@@ -166,45 +166,39 @@ class EventDetailScreen extends StatelessWidget {
   }
 
   Widget _buildBottomNavigationBar(BuildContext context) {
-    return Container(
-      height: 80,
-      decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.black12, width: 1.5))),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(label: 'Eventos', isSelected: true, onTap: () => Navigator.pop(context)),
-          _buildNavItem(
-            label: 'Inventario',
-            isSelected: false,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const InventoryScannerScreen()),
-            ),
-          ),
-          _buildNavItem(
-            label: 'Perfil',
-            isSelected: false,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ProfileScreen()),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem({required String label, required bool isSelected, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(width: 75, height: 12, decoration: BoxDecoration(color: isSelected ? Colors.black : const Color(0xFFB0B0B0), borderRadius: BorderRadius.circular(6))),
-          const SizedBox(height: 4),
-          Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isSelected ? Colors.black : const Color(0xFFB0B0B0))),
-        ],
-      ),
+    return BottomNavigationBar(
+      currentIndex: 0,
+      selectedItemColor: Colors.black,
+      unselectedItemColor: Colors.grey,
+      onTap: (index) {
+        if (index == 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const InventoryScannerScreen()),
+          );
+        } else if (index == 2) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ProfileScreen()),
+          );
+        } else if (index == 0) {
+          Navigator.pop(context);
+        }
+      },
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.event),
+          label: 'Eventos',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.qr_code_scanner),
+          label: 'Inventario',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: 'Perfil',
+        ),
+      ],
     );
   }
 }
