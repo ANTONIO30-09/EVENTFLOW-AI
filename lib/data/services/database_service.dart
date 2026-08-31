@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/event_model.dart';
 import '../models/guest_model.dart';
+import '../models/scan_item_model.dart';
 
 /// Servicio de datos — encapsula toda la comunicación con Firestore
-/// para eventos e invitados. Ninguna pantalla debe llamar a
-/// FirebaseFirestore directamente (principio MVVM, Cap. 5 del documento).
+/// para eventos, invitados e inventario. Ninguna pantalla debe llamar
+/// a FirebaseFirestore directamente (principio MVVM, Cap. 5 del documento).
 class DatabaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
@@ -54,5 +55,24 @@ class DatabaseService {
   Future<void> checkInGuest(GuestModel guest) {
     final updated = guest.markCheckedIn();
     return _db.collection('guests').doc(guest.id).update(updated.toMap());
+  }
+
+  // ---------- INVENTARIO ----------
+
+  /// Busca un ítem de inventario por su ID (el ID viene del QR).
+  Future<ScanItem?> fetchScanItemById(String id) async {
+    final doc = await _db.collection('scan_items').doc(id).get();
+    if (!doc.exists) return null;
+    return ScanItem.fromMap(doc.id, doc.data() as Map<dynamic, dynamic>);
+  }
+
+  /// Registra el escaneo del ítem actualizando `scannedAt` en Firestore.
+  Future<void> registerScan(String id) async {
+    final docRef = _db.collection('scan_items').doc(id);
+    final doc = await docRef.get();
+    if (!doc.exists) {
+      throw Exception('No existe un ítem con el ID escaneado.');
+    }
+    await docRef.update({'scannedAt': DateTime.now().toIso8601String()});
   }
 }
