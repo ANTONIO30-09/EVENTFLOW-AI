@@ -177,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
         controller: controller,
         obscureText: isObscure,
         textAlign: TextAlign.center,
-        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+        style: const TextStyle(color: AppColors.textDark, fontWeight: FontWeight.bold, fontSize: 15),
         cursorColor: AppColors.textDark,
         decoration: InputDecoration(
           hintText: hintText,

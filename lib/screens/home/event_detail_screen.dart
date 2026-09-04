@@ -48,7 +48,8 @@ class EventDetailScreen extends StatelessWidget {
               final totalInvitados = event.guestCount > 0 ? event.guestCount : guests.length;
               final checkInProgress = totalInvitados > 0 ? llegaron / totalInvitados : 0.0;
 
-              return Column(
+              return SingleChildScrollView(
+            child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 10),
@@ -154,8 +155,9 @@ const Text(
                   const SizedBox(height: 20),
                   _buildProgressBar(label: 'Montaje', percentage: 0, percentText: 'Pendiente', color: Colors.red),
                 ],
-              );
-            },
+              ),
+            );
+          },
           ),
         ),
       ),
