@@ -4,6 +4,8 @@ import '../../data/models/event_model.dart';
 import '../../data/models/guest_model.dart';
 import '../../data/services/database_service.dart';
 import '../guests/guest_control_screen.dart';
+import '../compatibility/compatibility_rules_screen.dart';
+import '../distribution/suggested_distribution_screen.dart';
 import '../inventory/inventory_scanner_screen.dart';
 import '../profile/profile_screen.dart';
 
@@ -95,7 +97,46 @@ class EventDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 30),
 
-                  const Text(
+                                    const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => CompatibilityRulesScreen(eventId: event.id)),
+                            );
+                          },
+                          icon: const Icon(Icons.rule),
+                          label: const Text('Reglas'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.black,
+                            side: const BorderSide(color: Colors.black),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => SuggestedDistributionScreen(eventId: event.id)),
+                            );
+                          },
+                          icon: const Icon(Icons.table_restaurant),
+                          label: const Text('Distribución'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.black,
+                            side: const BorderSide(color: Colors.black),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+const Text(
                     'PROGRESO DEL EVENTO',
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, letterSpacing: 0.5, color: AppColors.textDark),
                   ),

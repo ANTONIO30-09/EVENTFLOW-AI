@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/event_model.dart';
 import '../models/guest_model.dart';
 import '../models/scan_item_model.dart';
+import '../models/compatibility_rule_model.dart';
 
 /// Servicio de datos — encapsula toda la comunicación con Firestore
 /// para eventos, invitados e inventario. Ninguna pantalla debe llamar
@@ -74,5 +75,24 @@ class DatabaseService {
       throw Exception('No existe un ítem con el ID escaneado.');
     }
     await docRef.update({'scannedAt': DateTime.now().toIso8601String()});
+  }
+
+  // ---------- REGLAS DE COMPATIBILIDAD ----------
+
+  /// Stream en tiempo real de las reglas de compatibilidad de un evento.
+  Stream<List<CompatibilityRule>> streamCompatibilityRulesForEvent(String eventId) {
+    return _db
+        .collection('compatibility_rules')
+        .where('eventId', isEqualTo: eventId)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => CompatibilityRule.fromMap(doc.id, doc.data()))
+            .toList());
+  }
+
+  /// Crea una regla de compatibilidad y devuelve su ID.
+  Future<String> addCompatibilityRule(CompatibilityRule rule) async {
+    final ref = await _db.collection('compatibility_rules').add(rule.toMap());
+    return ref.id;
   }
 }
