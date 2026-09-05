@@ -3,6 +3,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/scan_item_model.dart';
 import '../../data/services/database_service.dart';
+import '../profile/profile_screen.dart';
 
 class InventoryScannerScreen extends StatefulWidget {
   const InventoryScannerScreen({super.key});
@@ -187,30 +188,40 @@ class _InventoryScannerScreenState extends State<InventoryScannerScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      bottomNavigationBar: _buildBottomNavigationBar(context),
     );
   }
 
-  Widget _buildBottomNavigationBar() {
-    return Container(
-      height: 80,
-      decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.black12))),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-        _buildNavItem('Eventos', false, () => Navigator.pop(context)),
-        _buildNavItem('Inventario', true, () {}),
-        _buildNavItem('Perfil', false, () => Navigator.pushReplacementNamed(context, '/profile')),
-      ]),
+  Widget _buildBottomNavigationBar(BuildContext context) {
+    return BottomNavigationBar(
+      currentIndex: 1,
+      selectedItemColor: Colors.black,
+      unselectedItemColor: Colors.grey,
+      onTap: (index) {
+        if (index == 0) {
+          Navigator.pop(context);
+        } else if (index == 2) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ProfileScreen()),
+          );
+        }
+      },
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.event),
+          label: 'Eventos',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.qr_code_scanner),
+          label: 'Inventario',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: 'Perfil',
+        ),
+      ],
     );
   }
 
-  Widget _buildNavItem(String label, bool isSelected, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Container(width: 75, height: 12, decoration: BoxDecoration(color: isSelected ? Colors.black : Colors.grey.shade300, borderRadius: BorderRadius.circular(6))),
-        const SizedBox(height: 4),
-        Text(label.toUpperCase(), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isSelected ? Colors.black : Colors.grey.shade400)),
-      ]),
-    );
-  }
 }
