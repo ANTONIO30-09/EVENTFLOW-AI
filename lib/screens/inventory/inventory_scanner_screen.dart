@@ -194,6 +194,7 @@ class _InventoryScannerScreenState extends State<InventoryScannerScreen> {
 
   Widget _buildBottomNavigationBar(BuildContext context) {
     return BottomNavigationBar(
+        backgroundColor: AppColors.surfaceCard,
       currentIndex: 1,
       selectedItemColor: Colors.black,
       unselectedItemColor: Colors.grey,

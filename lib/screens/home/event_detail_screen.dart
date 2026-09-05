@@ -210,6 +210,7 @@ const Text(
 
   Widget _buildBottomNavigationBar(BuildContext context) {
     return BottomNavigationBar(
+        backgroundColor: AppColors.surfaceCard,
       currentIndex: 0,
       selectedItemColor: Colors.black,
       unselectedItemColor: Colors.grey,
