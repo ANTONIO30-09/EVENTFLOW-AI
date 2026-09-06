@@ -182,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: const TextStyle(
-            color: Colors.white,
+            color: AppColors.textDark,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.2,
           ),
