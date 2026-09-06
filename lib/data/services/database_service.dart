@@ -3,6 +3,7 @@ import '../models/event_model.dart';
 import '../models/guest_model.dart';
 import '../models/scan_item_model.dart';
 import '../models/compatibility_rule_model.dart';
+import '../models/seating_table_model.dart';
 
 /// Servicio de datos — encapsula toda la comunicación con Firestore
 /// para eventos, invitados e inventario. Ninguna pantalla debe llamar
@@ -52,6 +53,17 @@ class DatabaseService {
     return _db.collection('guests').add(guest.toMap());
   }
 
+  /// Obtiene la lista de invitados de un evento una sola vez.
+  Future<List<GuestModel>> fetchGuestsForEvent(String eventId) async {
+    final snapshot = await _db
+        .collection('guests')
+        .where('eventId', isEqualTo: eventId)
+        .get();
+    return snapshot.docs
+        .map((doc) => GuestModel.fromMap(doc.id, doc.data()))
+        .toList();
+  }
+
   /// Marca a un invitado como ingresado (HU-04) y guarda el cambio.
   Future<void> checkInGuest(GuestModel guest) {
     final updated = guest.markCheckedIn();
@@ -94,5 +106,40 @@ class DatabaseService {
   Future<String> addCompatibilityRule(CompatibilityRule rule) async {
     final ref = await _db.collection('compatibility_rules').add(rule.toMap());
     return ref.id;
+  }
+
+  /// Obtiene la lista de reglas de compatibilidad de un evento una sola vez.
+  Future<List<CompatibilityRule>> fetchCompatibilityRulesForEvent(String eventId) async {
+    final snapshot = await _db
+        .collection('compatibility_rules')
+        .where('eventId', isEqualTo: eventId)
+        .get();
+    return snapshot.docs
+        .map((doc) => CompatibilityRule.fromMap(doc.id, doc.data()))
+        .toList();
+  }
+
+  // ---------- MESAS ----------
+
+  /// Stream en tiempo real de las mesas de un evento.
+  Stream<List<SeatingTable>> streamTablesForEvent(String eventId) {
+    return _db
+        .collection('seating_tables')
+        .where('eventId', isEqualTo: eventId)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => SeatingTable.fromMap(doc.id, doc.data()))
+            .toList());
+  }
+
+  /// Obtiene la lista de mesas de un evento una sola vez.
+  Future<List<SeatingTable>> fetchTablesForEvent(String eventId) async {
+    final snapshot = await _db
+        .collection('seating_tables')
+        .where('eventId', isEqualTo: eventId)
+        .get();
+    return snapshot.docs
+        .map((doc) => SeatingTable.fromMap(doc.id, doc.data()))
+        .toList();
   }
 }
