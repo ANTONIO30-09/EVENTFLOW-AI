@@ -6,7 +6,7 @@ class AiExplanationService {
   static const String _apiKey = String.fromEnvironment('GROQ_API_KEY');
   static const String _endpoint =
       'https://api.groq.com/openai/v1/chat/completions';
-  static const String _model = 'llama-3.3-70b-versatile';
+  static const String _model = 'openai/gpt-oss-20b';
 
   Future<String> generateExplanation(DistributionResult result) async {
     if (_apiKey.isEmpty) {
