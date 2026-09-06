@@ -28,11 +28,11 @@ class AiExplanationService {
             {
               'role': 'system',
               'content':
-                  'Sos un asistente que explica en español la distribución de invitados en un evento. No cambies la asignación, solo explícala de forma clara y breve.'
+                  'Explicá en español la distribución de invitados. Usá EXCLUSIVAMENTE la información proporcionada. NO inventes profesiones, intereses, relaciones, nombres ni ningún dato adicional. NO agregues nada que no esté en la distribución. La explicación debe ser breve y basada únicamente en los datos suministrados.'
             },
             {'role': 'user', 'content': prompt},
           ],
-          'temperature': 0.4,
+          'temperature': 0.1,
         }),
       );
 
