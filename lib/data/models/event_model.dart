@@ -6,6 +6,7 @@ class EventModel {
   final String location;
   final String status; // 'planificacion' | 'en_curso' | 'finalizado'
   final int guestCount;
+  final bool distributionApproved;
 
   const EventModel({
     required this.id,
@@ -14,6 +15,7 @@ class EventModel {
     required this.location,
     required this.status,
     this.guestCount = 0,
+    this.distributionApproved = false,
   });
 
   factory EventModel.fromMap(String id, Map<dynamic, dynamic> map) {
@@ -24,6 +26,7 @@ class EventModel {
       location: map['location'] as String? ?? '',
       status: map['status'] as String? ?? 'planificacion',
       guestCount: int.tryParse(map['guestCount'].toString()) ?? 0,
+      distributionApproved: map['distributionApproved'] as bool? ?? false,
     );
   }
 
@@ -34,6 +37,7 @@ class EventModel {
       'location': location,
       'status': status,
       'guestCount': guestCount,
+      'distributionApproved': distributionApproved,
     };
   }
 }
