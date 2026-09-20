@@ -166,4 +166,9 @@ class DatabaseService {
     if (!doc.exists) return null;
     return EventModel.fromMap(doc.id, doc.data() as Map<dynamic, dynamic>);
   }
+
+  /// Elimina una regla de compatibilidad por su ID.
+  Future<void> deleteCompatibilityRule(String ruleId) {
+    return _db.collection('compatibility_rules').doc(ruleId).delete();
+  }
 }
