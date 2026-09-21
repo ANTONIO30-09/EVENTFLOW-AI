@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/event_model.dart';
+import '../../data/models/guest_model.dart';
 import '../../data/services/database_service.dart';
 import '../inventory/inventory_scanner_screen.dart';
 import '../profile/profile_screen.dart';
@@ -139,9 +140,17 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 15),
-                  Text(
-                    '${event.location} • ${event.guestCount} invitados',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87),
+                  StreamBuilder<List<GuestModel>>(
+                    stream: DatabaseService().streamGuestsForEvent(event.id),
+                    builder: (context, snapshot) {
+                      final count = snapshot.hasData
+                          ? snapshot.data!.length
+                          : event.guestCount;
+                      return Text(
+                        '${event.location} • $count invitados',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87),
+                      );
+                    },
                   ),
                 ],
               ),
