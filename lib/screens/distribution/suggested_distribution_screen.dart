@@ -71,6 +71,25 @@ class _State extends State<SuggestedDistributionScreen> {
     } catch (_) {}
   }
 
+  Future<void> _regenerate() async {
+    if (_approved) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Regenerar distribución'),
+          content: const Text('Esto descarta los cambios manuales y la aprobación. ¿Continuar?'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+            ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Regenerar')),
+          ],
+        ),
+      );
+      if (confirm != true) return;
+      await _databaseService.unapproveDistribution(widget.eventId);
+    }
+    await _loadDistribution();
+  }
+
   Future<void> _generateExplanation() async {
     final dist = _distribution;
     if (dist == null) return;
@@ -260,7 +279,7 @@ class _State extends State<SuggestedDistributionScreen> {
           const SizedBox(height: 16),
           ElevatedButton.icon(onPressed: _generateExplanation, icon: const Icon(Icons.auto_awesome), label: const Text('Explicar distribución'), style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white)),
           const SizedBox(height: 8),
-          ElevatedButton.icon(onPressed: _loadDistribution, icon: const Icon(Icons.refresh), label: const Text('Regenerar distribución'), style: ElevatedButton.styleFrom(backgroundColor: Colors.grey)),
+          ElevatedButton.icon(onPressed: _regenerate, icon: const Icon(Icons.refresh), label: const Text('Regenerar distribución'), style: ElevatedButton.styleFrom(backgroundColor: Colors.grey)),
           const SizedBox(height: 8),
           if (!_approved) ElevatedButton.icon(onPressed: _approve, icon: const Icon(Icons.check), label: const Text('Aprobar distribución'), style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white)),
         ],
