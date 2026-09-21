@@ -200,7 +200,7 @@ class _InventoryScannerScreenState extends State<InventoryScannerScreen> {
       unselectedItemColor: Colors.grey,
       onTap: (index) {
         if (index == 0) {
-          Navigator.pop(context);
+          Navigator.popUntil(context, (route) => route.isFirst);
         } else if (index == 2) {
           Navigator.push(
             context,
