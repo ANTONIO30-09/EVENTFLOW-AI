@@ -3,6 +3,8 @@ import '../../core/constants/app_colors.dart';
 import '../../data/models/guest_model.dart';
 import '../../data/services/database_service.dart';
 import '../check_in/check_in_success_screen.dart';
+import '../inventory/inventory_scanner_screen.dart';
+import '../profile/profile_screen.dart';
 
 class GuestControlScreen extends StatefulWidget {
   final String eventId;
@@ -156,7 +158,7 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      bottomNavigationBar: _buildBottomNavigationBar(context),
     );
   }
 
@@ -177,26 +179,41 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
     );
   }
 
-  Widget _buildBottomNavigationBar() {
-    return Container(
-      height: 80,
-      decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.black12))),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-        _buildNavItem('Eventos', false, () => Navigator.pop(context)),
-        _buildNavItem('Inventario', false, () => Navigator.pushReplacementNamed(context, '/inventory')),
-        _buildNavItem('Perfil', true, () => Navigator.pushReplacementNamed(context, '/profile')),
-      ]),
-    );
-  }
-
-  Widget _buildNavItem(String label, bool isSelected, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Container(width: 75, height: 12, decoration: BoxDecoration(color: isSelected ? Colors.black : Colors.grey.shade300, borderRadius: BorderRadius.circular(6))),
-        const SizedBox(height: 4),
-        Text(label.toUpperCase(), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isSelected ? Colors.black : Colors.grey.shade400)),
-      ]),
+  Widget _buildBottomNavigationBar(BuildContext context) {
+    return BottomNavigationBar(
+      backgroundColor: AppColors.surfaceCard,
+      currentIndex: 0,
+      selectedItemColor: Colors.black,
+      unselectedItemColor: Colors.grey,
+      onTap: (index) {
+        if (index == 0) {
+          Navigator.popUntil(context, (route) => route.isFirst);
+        } else if (index == 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const InventoryScannerScreen()),
+          );
+        } else if (index == 2) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ProfileScreen()),
+          );
+        }
+      },
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.event),
+          label: 'Eventos',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.qr_code_scanner),
+          label: 'Inventario',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: 'Perfil',
+        ),
+      ],
     );
   }
 }
