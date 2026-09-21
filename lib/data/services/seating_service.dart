@@ -101,14 +101,21 @@ class SeatingService {
     required List<GuestModel> guests,
     required List<SeatingTable> tables,
   }) {
+    final capacityByName = <String, int>{};
     final assignmentsMap = <String, List<String>>{};
     for (final table in tables) {
+      capacityByName[table.name] = table.capacity;
       assignmentsMap[table.name] = [];
     }
     final unassigned = <String>[];
     for (final guest in guests) {
       final tableName = guest.tableNumber;
       if (tableName.isEmpty || !assignmentsMap.containsKey(tableName)) {
+        unassigned.add(guest.name);
+        continue;
+      }
+      final capacity = capacityByName[tableName] ?? 0;
+      if (assignmentsMap[tableName]!.length >= capacity) {
         unassigned.add(guest.name);
       } else {
         assignmentsMap[tableName]!.add(guest.name);
