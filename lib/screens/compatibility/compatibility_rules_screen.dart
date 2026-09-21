@@ -61,7 +61,14 @@ class _CompatibilityRulesScreenState extends State<CompatibilityRulesScreen> {
         stream: _databaseService.streamGuestsForEvent(widget.eventId),
         builder: (context, guestSnap) {
           final guests = guestSnap.data ?? [];
-          final names = guests.map((g) => g.name).toList();
+          String labelFor(GuestModel g) {
+            final mesa = g.tableNumber.isEmpty ? 'sin mesa' : g.tableNumber;
+            return '${g.name} — $mesa';
+          }
+          final labelToName = <String, String>{
+            for (final g in guests) labelFor(g): g.name
+          };
+          final labels = labelToName.keys.toList();
           return Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -70,18 +77,18 @@ class _CompatibilityRulesScreenState extends State<CompatibilityRulesScreen> {
                 const Text('Nueva regla', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  initialValue: _guestA,
+                  initialValue: _guestA == null ? null : labels.firstWhere((l) => labelToName[l] == _guestA, orElse: () => labels.first),
                   isExpanded: true,
-                  items: names.map((n) => DropdownMenuItem(value: n, child: Text(n, overflow: TextOverflow.ellipsis))).toList(),
-                  onChanged: (v) => setState(() => _guestA = v),
+                  items: labels.map((l) => DropdownMenuItem(value: l, child: Text(l, overflow: TextOverflow.ellipsis))).toList(),
+                  onChanged: (v) => setState(() => _guestA = v == null ? null : labelToName[v]),
                   decoration: const InputDecoration(labelText: 'Invitado A', border: OutlineInputBorder()),
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  initialValue: _guestB,
+                  initialValue: _guestB == null ? null : labels.firstWhere((l) => labelToName[l] == _guestB, orElse: () => labels.first),
                   isExpanded: true,
-                  items: names.map((n) => DropdownMenuItem(value: n, child: Text(n, overflow: TextOverflow.ellipsis))).toList(),
-                  onChanged: (v) => setState(() => _guestB = v),
+                  items: labels.map((l) => DropdownMenuItem(value: l, child: Text(l, overflow: TextOverflow.ellipsis))).toList(),
+                  onChanged: (v) => setState(() => _guestB = v == null ? null : labelToName[v]),
                   decoration: const InputDecoration(labelText: 'Invitado B', border: OutlineInputBorder()),
                 ),
                 const SizedBox(height: 8),

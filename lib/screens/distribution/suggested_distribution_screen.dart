@@ -83,14 +83,25 @@ class _State extends State<SuggestedDistributionScreen> {
   Future<void> _approve() async {
     final dist = _distribution;
     if (dist == null) return;
+    final guests = await _databaseService.fetchGuestsForEvent(widget.eventId);
+    final byName = {for (final g in guests) g.name: g};
+
     for (final a in dist.assignments) {
       for (final name in a.guests) {
-        final guest = await _findGuestByName(name);
+        final guest = byName[name];
         if (guest != null) {
           await _databaseService.updateGuestTable(guest.id, a.tableName);
         }
       }
     }
+
+    for (final name in dist.unassignedGuests) {
+      final guest = byName[name];
+      if (guest != null) {
+        await _databaseService.updateGuestTable(guest.id, '');
+      }
+    }
+
     await _databaseService.approveDistribution(widget.eventId);
     if (!mounted) return;
     setState(() { _approved = true; });
@@ -99,19 +110,12 @@ class _State extends State<SuggestedDistributionScreen> {
     );
   }
 
-  Future<GuestModel?> _findGuestByName(String name) async {
-    final guests = await _databaseService.fetchGuestsForEvent(widget.eventId);
-    for (final g in guests) {
-      if (g.name == name) return g;
-    }
-    return null;
-  }
-
   Future<void> _openMoveDialog(String guestName, String originTable) async {
     final guests = await _databaseService.fetchGuestsForEvent(widget.eventId);
     final guest = guests.firstWhere((g) => g.name == guestName, orElse: () => guests.first);
     final destTables = _tables.where((t) => t.name != originTable).toList();
     if (destTables.isEmpty) return;
+    final dist = _distribution!;
     String? dest = destTables.first.name;
     bool moveFamily = false;
     final familyMembers = guests.where((g) => g.familyGroup.isNotEmpty && g.familyGroup == guest.familyGroup && g.tableNumber == originTable && g.name != guest.name).toList();
@@ -125,7 +129,10 @@ class _State extends State<SuggestedDistributionScreen> {
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             DropdownButtonFormField<String>(
               initialValue: dest,
-              items: destTables.map((t) => DropdownMenuItem(value: t.name, child: Text(t.name))).toList(),
+              items: destTables.map((t) {
+                final assigned = dist.assignments.firstWhere((a) => a.tableName == t.name, orElse: () => TableAssignment(tableName: t.name, guests: const [])).guests.length;
+                return DropdownMenuItem(value: t.name, child: Text('${t.name} ($assigned/${t.capacity})'));
+              }).toList(),
               onChanged: (v) => setDlg(() => dest = v),
               decoration: const InputDecoration(labelText: 'Mesa destino'),
             ),
@@ -173,7 +180,11 @@ class _State extends State<SuggestedDistributionScreen> {
     final ocupadas = destAssignment.guests.length;
     if (ocupadas + toMove.length > destTable.capacity) {
       final libres = destTable.capacity - ocupadas;
-      return 'La mesa $dest solo tiene $libres sillas libres, pero se intentan mover ${toMove.length} personas';
+      final faltan = toMove.length - libres;
+      if (libres <= 0) {
+        return 'La mesa $dest ya está llena ($ocupadas/${destTable.capacity}). Hacen falta $faltan sillas más.';
+      }
+      return 'La mesa $dest tiene $libres sillas libres, pero se intentan mover ${toMove.length} personas (faltan $faltan sillas).';
     }
 
     for (final moving in toMove) {
