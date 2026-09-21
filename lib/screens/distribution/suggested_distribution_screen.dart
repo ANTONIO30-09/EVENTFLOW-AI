@@ -197,15 +197,18 @@ class _State extends State<SuggestedDistributionScreen> {
     final destTable = _tables.firstWhere((t) => t.name == dest);
     final destAssignment = dist.assignments.firstWhere((a) => a.tableName == dest, orElse: () => const TableAssignment(tableName: '', guests: []));
     final ocupadas = destAssignment.guests.length;
+    final motivos = <String>[];
     if (ocupadas + toMove.length > destTable.capacity) {
       final libres = destTable.capacity - ocupadas;
       final faltan = toMove.length - libres;
       if (libres <= 0) {
-        return 'La mesa $dest ya está llena ($ocupadas/${destTable.capacity}). Hacen falta $faltan sillas más.';
+        motivos.add('la mesa $dest ya está llena ($ocupadas/${destTable.capacity}), hacen falta $faltan sillas');
+      } else {
+        motivos.add('la mesa $dest tiene $libres sillas libres pero se intentan mover ${toMove.length} personas');
       }
-      return 'La mesa $dest tiene $libres sillas libres, pero se intentan mover ${toMove.length} personas (faltan $faltan sillas).';
     }
 
+    final conflictos = <String>[];
     for (final moving in toMove) {
       for (final rule in _rules) {
         if (rule.ruleType != 'forbid') continue;
@@ -214,11 +217,17 @@ class _State extends State<SuggestedDistributionScreen> {
         if (rule.guestB == moving.name) other = rule.guestA;
         if (other == null) continue;
         if (destAssignment.guests.contains(other) && !toMove.any((g) => g.name == other)) {
-          return 'No se puede mover a ${moving.name}: tiene regla "no sentar juntos" con $other, quien ya está en $dest';
+          final msg = '${moving.name} tiene regla "no sentar juntos" con $other, quien ya está en $dest';
+          if (!conflictos.contains(msg)) conflictos.add(msg);
         }
       }
     }
-    return null;
+    if (conflictos.isNotEmpty) {
+      motivos.add(conflictos.join('; '));
+    }
+
+    if (motivos.isEmpty) return null;
+    return 'No se puede mover: ${motivos.join(". Además, ")}';
   }
 
   @override
