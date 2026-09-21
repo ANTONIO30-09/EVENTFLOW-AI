@@ -226,7 +226,7 @@ const Text(
             MaterialPageRoute(builder: (_) => const ProfileScreen()),
           );
         } else if (index == 0) {
-          Navigator.pop(context);
+          Navigator.popUntil(context, (route) => route.isFirst);
         }
       },
       items: const [
