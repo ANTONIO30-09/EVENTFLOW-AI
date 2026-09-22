@@ -93,4 +93,40 @@ class SeatingService {
       warning: warning,
     );
   }
+
+  /// Construye un DistributionResult a partir del estado REAL de guests
+  /// (guest.tableNumber). No recalcula nada: refleja lo que hay en Firestore
+  /// en este momento, incluidas ediciones manuales del organizador.
+  DistributionResult fromCurrentAssignments({
+    required List<GuestModel> guests,
+    required List<SeatingTable> tables,
+  }) {
+    final capacityByName = <String, int>{};
+    final assignmentsMap = <String, List<String>>{};
+    for (final table in tables) {
+      capacityByName[table.name] = table.capacity;
+      assignmentsMap[table.name] = [];
+    }
+    final unassigned = <String>[];
+    for (final guest in guests) {
+      final tableName = guest.tableNumber;
+      if (tableName.isEmpty || !assignmentsMap.containsKey(tableName)) {
+        unassigned.add(guest.name);
+        continue;
+      }
+      final capacity = capacityByName[tableName] ?? 0;
+      if (assignmentsMap[tableName]!.length >= capacity) {
+        unassigned.add(guest.name);
+      } else {
+        assignmentsMap[tableName]!.add(guest.name);
+      }
+    }
+    final assignments = assignmentsMap.entries
+        .map((e) => TableAssignment(tableName: e.key, guests: e.value))
+        .toList();
+    return DistributionResult(
+      assignments: assignments,
+      unassignedGuests: unassigned,
+    );
+  }
 }

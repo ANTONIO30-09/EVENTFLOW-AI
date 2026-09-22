@@ -52,6 +52,16 @@ class AuthService {
   /// Cierra la sesión actual.
   Future<void> signOut() => _auth.signOut();
 
+  /// Devuelve el perfil del usuario logueado, o null si no hay
+  /// sesión o el perfil no existe. No lanza excepción.
+  Future<UserModel?> fetchCurrentUserProfile() async {
+    final user = _auth.currentUser;
+    if (user == null) return null;
+    final doc = await _db.collection('profiles').doc(user.uid).get();
+    if (!doc.exists) return null;
+    return UserModel.fromMap(user.uid, doc.data()!);
+  }
+
   /// Obtiene el perfil completo (nombre, rol) desde Firestore.
   Future<UserModel> _fetchProfile(String uid) async {
     final doc = await _db.collection('profiles').doc(uid).get();

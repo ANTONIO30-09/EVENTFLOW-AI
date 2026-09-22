@@ -142,4 +142,33 @@ class DatabaseService {
         .map((doc) => SeatingTable.fromMap(doc.id, doc.data()))
         .toList();
   }
+
+  // ---------- DISTRIBUCIÓN: EDICIÓN Y APROBACIÓN ----------
+
+  /// Actualiza la mesa asignada a un invitado.
+  Future<void> updateGuestTable(String guestId, String tableName) {
+    return _db.collection('guests').doc(guestId).update({'tableNumber': tableName});
+  }
+
+  /// Marca la distribución del evento como aprobada.
+  Future<void> approveDistribution(String eventId) {
+    return _db.collection('events').doc(eventId).update({'distributionApproved': true});
+  }
+
+  /// Marca la distribución del evento como pendiente (no aprobada).
+  Future<void> unapproveDistribution(String eventId) {
+    return _db.collection('events').doc(eventId).update({'distributionApproved': false});
+  }
+
+  /// Obtiene un evento por ID (una sola lectura).
+  Future<EventModel?> fetchEventById(String eventId) async {
+    final doc = await _db.collection('events').doc(eventId).get();
+    if (!doc.exists) return null;
+    return EventModel.fromMap(doc.id, doc.data() as Map<dynamic, dynamic>);
+  }
+
+  /// Elimina una regla de compatibilidad por su ID.
+  Future<void> deleteCompatibilityRule(String ruleId) {
+    return _db.collection('compatibility_rules').doc(ruleId).delete();
+  }
 }
