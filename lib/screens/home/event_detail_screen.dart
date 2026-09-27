@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/event_model.dart';
 import '../../data/models/guest_model.dart';
@@ -18,21 +19,26 @@ class EventDetailScreen extends StatelessWidget {
     final databaseService = DatabaseService();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.fondoAzulNoche,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: const BackButton(color: AppColors.textDark),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               event.name,
-              style: const TextStyle(color: AppColors.textDark, fontWeight: FontWeight.bold, fontSize: 20),
+              style: GoogleFonts.inter(
+                color: AppColors.acentoBronce,
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
             ),
             Text(
               event.location,
-              style: const TextStyle(color: AppColors.textMuted, fontSize: 12, fontWeight: FontWeight.w500),
+              style: GoogleFonts.inter(
+                color: AppColors.textoSecundarioGris,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
@@ -49,115 +55,135 @@ class EventDetailScreen extends StatelessWidget {
               final checkInProgress = totalInvitados > 0 ? llegaron / totalInvitados : 0.0;
 
               return SingleChildScrollView(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 10),
-                  Text(
-                    '${_formatDate(event.date)} - ${event.location}',
-                    style: const TextStyle(color: Colors.black26, fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                  const SizedBox(height: 15),
-
-                  Center(
-                    child: Text(
-                      event.name,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppColors.textDark, height: 1.1),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildStatCard('$totalInvitados', 'Invitados'),
-                      _buildStatCard('$llegaron', 'Llegaron'),
-                      _buildStatCard('—', 'Items'),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => GuestControlScreen(eventId: event.id)),
-                        );
-                      },
-                      icon: const Icon(Icons.person_search),
-                      label: const Text('Control de invitados'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+                    Text(
+                      _formatDate(event.date),
+                      style: GoogleFonts.inter(
+                        color: AppColors.textoSecundarioGris,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 13,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 30),
-
-                                    const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => CompatibilityRulesScreen(eventId: event.id)),
-                            );
-                          },
-                          icon: const Icon(Icons.rule),
-                          label: const Text('Reglas'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.black,
-                            side: const BorderSide(color: Colors.black),
-                          ),
+                    const SizedBox(height: 15),
+                    Center(
+                      child: Text(
+                        event.name,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.fraunces(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.acentoBronce,
+                          height: 1.1,
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => SuggestedDistributionScreen(eventId: event.id)),
-                            );
-                          },
-                          icon: const Icon(Icons.table_restaurant),
-                          label: const Text('Distribución'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.black,
-                            side: const BorderSide(color: Colors.black),
-                          ),
+                    ),
+                    const SizedBox(height: 30),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildStatCard('$totalInvitados', 'Invitados'),
+                        _buildStatCard('$llegaron', 'Llegaron'),
+                        _buildStatCard('—', 'Items'),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => GuestControlScreen(eventId: event.id)),
+                          );
+                        },
+                        icon: const Icon(Icons.person_search),
+                        label: const Text('Control de invitados'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.acentoBronce,
+                          foregroundColor: AppColors.fondoAzulNoche,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                         ),
                       ),
-                    ],
-                  ),
-const Text(
-                    'PROGRESO DEL EVENTO',
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, letterSpacing: 0.5, color: AppColors.textDark),
-                  ),
-                  const SizedBox(height: 25),
-
-                  _buildProgressBar(
-                    label: 'Check-In',
-                    percentage: checkInProgress,
-                    percentText: '${(checkInProgress * 100).round()}%',
-                    color: const Color(0xFF0081C9),
-                  ),
-                  const SizedBox(height: 20),
-
-                  _buildProgressBar(label: 'Inventario', percentage: 0, percentText: 'Pendiente', color: const Color(0xFF00C897)),
-                  const SizedBox(height: 20),
-                  _buildProgressBar(label: 'Montaje', percentage: 0, percentText: 'Pendiente', color: Colors.red),
-                ],
-              ),
-            );
-          },
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => CompatibilityRulesScreen(eventId: event.id)),
+                              );
+                            },
+                            icon: const Icon(Icons.rule, size: 18),
+                            label: const Text('Reglas'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.acentoBronce,
+                              side: const BorderSide(color: AppColors.acentoBronce),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => SuggestedDistributionScreen(eventId: event.id)),
+                              );
+                            },
+                            icon: const Icon(Icons.table_restaurant, size: 18),
+                            label: const Text('Distribución'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.acentoBronce,
+                              side: const BorderSide(color: AppColors.acentoBronce),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                    Text(
+                      'PROGRESO DEL EVENTO',
+                      style: GoogleFonts.fraunces(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.acentoBronce,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildProgressBar(
+                      label: 'Check-In',
+                      percentage: checkInProgress,
+                      percentText: '${(checkInProgress * 100).round()}%',
+                      color: AppColors.exitoVerdeSalvia,
+                    ),
+                    const SizedBox(height: 20),
+                    _buildProgressBar(
+                      label: 'Inventario',
+                      percentage: 0,
+                      percentText: 'Pendiente',
+                      color: AppColors.textoSecundarioGris,
+                    ),
+                    const SizedBox(height: 20),
+                    _buildProgressBar(
+                      label: 'Montaje',
+                      percentage: 0,
+                      percentText: 'Pendiente',
+                      color: AppColors.textoSecundarioGris,
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -179,41 +205,83 @@ const Text(
       width: 100,
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 4))],
+        color: AppColors.superficiePorcelana,
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         children: [
-          Text(value, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black)),
-          Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87)),
+          Text(
+            value,
+            style: GoogleFonts.inter(
+              fontSize: 28,
+              fontWeight: FontWeight.w700,
+              color: AppColors.fondoAzulNoche,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textoSecundarioGris,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildProgressBar({required String label, required double percentage, required String percentText, required Color color}) {
+  Widget _buildProgressBar({
+    required String label,
+    required double percentage,
+    required String percentText,
+    required Color color,
+  }) {
     return Row(
       children: [
-        SizedBox(width: 90, child: Text(label, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textDark))),
+        SizedBox(
+          width: 90,
+          child: Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.superficiePorcelana,
+            ),
+          ),
+        ),
         Expanded(
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: LinearProgressIndicator(value: percentage, minHeight: 14, backgroundColor: Colors.black12, valueColor: AlwaysStoppedAnimation<Color>(color)),
+            child: LinearProgressIndicator(
+              value: percentage,
+              minHeight: 12,
+              backgroundColor: AppColors.superficiePorcelana.withValues(alpha: 0.15),
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+            ),
           ),
         ),
         const SizedBox(width: 15),
-        SizedBox(width: 70, child: Text(percentText, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textDark), textAlign: TextAlign.right)),
+        SizedBox(
+          width: 70,
+          child: Text(
+            percentText,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.superficiePorcelana,
+            ),
+            textAlign: TextAlign.right,
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildBottomNavigationBar(BuildContext context) {
     return BottomNavigationBar(
-        backgroundColor: AppColors.surfaceCard,
       currentIndex: 0,
-      selectedItemColor: Colors.black,
-      unselectedItemColor: Colors.grey,
       onTap: (index) {
         if (index == 1) {
           Navigator.push(
