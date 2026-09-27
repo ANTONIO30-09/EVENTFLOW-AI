@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/event_model.dart';
 import '../../data/models/guest_model.dart';
+import '../../data/models/user_model.dart';
+import '../../data/services/auth_service.dart';
 import '../../data/services/database_service.dart';
 import '../inventory/inventory_scanner_screen.dart';
 import '../profile/profile_screen.dart';
@@ -23,30 +25,46 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Bienvenido.',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textoSecundarioGris,
-                ),
-              ),
-              Text(
-                'Antonio Garcia.',
-                style: GoogleFonts.fraunces(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.acentoBronce,
-                  height: 1.1,
-                ),
-              ),
-              Text(
-                'Personal de Campo',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textoSecundarioGris,
-                ),
+              FutureBuilder<UserModel?>(
+                future: AuthService().fetchCurrentUserProfile(),
+                builder: (context, userSnap) {
+                  final user = userSnap.data;
+                  final nombre = user?.name ?? 'Usuario';
+                  final rol = user == null
+                      ? ''
+                      : (user.isOrganizador ? 'Organizador' : 'Personal de Campo');
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Bienvenido.',
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textoSecundarioGris,
+                        ),
+                      ),
+                      Text(
+                        nombre,
+                        style: GoogleFonts.fraunces(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.acentoBronce,
+                          height: 1.1,
+                        ),
+                      ),
+                      if (rol.isNotEmpty)
+                        Text(
+                          rol,
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textoSecundarioGris,
+                          ),
+                        ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 20),
               Container(
