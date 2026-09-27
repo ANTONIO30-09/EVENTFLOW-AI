@@ -8,6 +8,10 @@ class EventModel {
   final int guestCount;
   final bool distributionApproved;
 
+  /// Origen de la distribución actual: 'ai' o 'algorithm'.
+  /// Cadena vacía si el evento aún no tiene distribución generada.
+  final String distributionSource;
+
   const EventModel({
     required this.id,
     required this.name,
@@ -16,6 +20,7 @@ class EventModel {
     required this.status,
     this.guestCount = 0,
     this.distributionApproved = false,
+    this.distributionSource = '',
   });
 
   factory EventModel.fromMap(String id, Map<dynamic, dynamic> map) {
@@ -27,6 +32,7 @@ class EventModel {
       status: map['status'] as String? ?? 'planificacion',
       guestCount: int.tryParse(map['guestCount'].toString()) ?? 0,
       distributionApproved: map['distributionApproved'] as bool? ?? false,
+      distributionSource: map['distributionSource'] as String? ?? '',
     );
   }
 
@@ -38,6 +44,7 @@ class EventModel {
       'status': status,
       'guestCount': guestCount,
       'distributionApproved': distributionApproved,
+      'distributionSource': distributionSource,
     };
   }
 }
