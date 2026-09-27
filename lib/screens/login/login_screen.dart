@@ -1,15 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/constants/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../data/services/auth_service.dart';
-
-class _Palette {
-  static const Color fondo = Color(0xFF1B2A3D);
-  static const Color porcelana = Color(0xFFFBF9F4);
-  static const Color bronce = Color(0xFFB8863E);
-  static const Color ladrillo = Color(0xFFA63D40);
-  static const Color grisCalido = Color(0xFF6B6459);
-}
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -66,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: _Palette.ladrillo,
+        backgroundColor: AppColors.alertaLadrillo,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -75,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _Palette.fondo,
+      backgroundColor: AppColors.fondoAzulNoche,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -89,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     'assets/images/logo.png',
                     height: 140,
                     errorBuilder: (context, error, stackTrace) {
-                      return Icon(Icons.blur_on, size: 120, color: _Palette.bronce);
+                      return Icon(Icons.blur_on, size: 120, color: AppColors.acentoBronce);
                     },
                   ),
                   const SizedBox(height: 20),
@@ -98,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: GoogleFonts.fraunces(
                       fontSize: 42,
                       fontWeight: FontWeight.w700,
-                      color: _Palette.bronce,
+                      color: AppColors.acentoBronce,
                       letterSpacing: 0.3,
                     ),
                   ),
@@ -107,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     'Sistema de Logística de Eventos',
                     style: GoogleFonts.inter(
                       fontSize: 14,
-                      color: _Palette.grisCalido,
+                      color: AppColors.textoSecundarioGris,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -131,8 +124,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: FilledButton(
                       onPressed: _isLoading ? null : _handleLogin,
                       style: FilledButton.styleFrom(
-                        backgroundColor: _Palette.bronce,
-                        foregroundColor: _Palette.fondo,
+                        backgroundColor: AppColors.acentoBronce,
+                        foregroundColor: AppColors.fondoAzulNoche,
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
@@ -182,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: _Palette.porcelana,
+              color: AppColors.superficiePorcelana,
             ),
           ),
         ),
@@ -191,19 +184,19 @@ class _LoginScreenState extends State<LoginScreen> {
           obscureText: isObscure,
           keyboardType: keyboardType,
           style: GoogleFonts.inter(
-            color: _Palette.fondo,
+            color: AppColors.fondoAzulNoche,
             fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
-          cursorColor: _Palette.bronce,
+          cursorColor: AppColors.acentoBronce,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: GoogleFonts.inter(
-              color: _Palette.grisCalido.withValues(alpha: 0.6),
+              color: AppColors.textoSecundarioGris.withValues(alpha: 0.6),
               fontSize: 14,
             ),
             filled: true,
-            fillColor: _Palette.porcelana,
+            fillColor: AppColors.superficiePorcelana,
             contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
@@ -215,7 +208,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: _Palette.bronce, width: 1.6),
+              borderSide: const BorderSide(color: AppColors.acentoBronce, width: 1.6),
             ),
           ),
         ),

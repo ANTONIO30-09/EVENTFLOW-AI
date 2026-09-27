@@ -34,4 +34,16 @@
 
 ## Alcance
 
-Este sistema se aplica por ahora **solo a `login_screen.dart`**. La migración del resto de pantallas se planifica para Semana 10, con validación pantalla por pantalla.
+Este sistema se aplica a **toda la aplicación** (a partir de la Semana 10):
+
+- `login_screen.dart`
+- `home_screen.dart`
+- `event_detail_screen.dart`
+- `guest_control_screen.dart`
+- `check_in_success_screen.dart`
+- `inventory_scanner_screen.dart`
+- `compatibility_rules_screen.dart`
+- `suggested_distribution_screen.dart`
+- `profile_screen.dart`
+
+Los colores viejos (crema/negro) fueron eliminados de `AppColors`. La única fuente de verdad es esta paleta.
