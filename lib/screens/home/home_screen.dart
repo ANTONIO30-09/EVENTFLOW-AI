@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/event_model.dart';
 import '../../data/models/guest_model.dart';
@@ -15,58 +16,83 @@ class HomeScreen extends StatelessWidget {
     final databaseService = DatabaseService();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.fondoAzulNoche,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Bienvenido.',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.textDark),
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textoSecundarioGris,
+                ),
               ),
-              const Text(
+              Text(
                 'Antonio Garcia.',
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.textDark, height: 1.1),
+                style: GoogleFonts.fraunces(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.acentoBronce,
+                  height: 1.1,
+                ),
               ),
-              const Text(
+              Text(
                 'Personal de Campo',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.textMuted),
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textoSecundarioGris,
+                ),
               ),
               const SizedBox(height: 20),
-
               Container(
-                decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(30)),
+                decoration: BoxDecoration(
+                  color: AppColors.superficiePorcelana,
+                  borderRadius: BorderRadius.circular(30),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: const TextField(
-                  style: TextStyle(color: Colors.white),
+                child: TextField(
+                  style: GoogleFonts.inter(color: AppColors.fondoAzulNoche, fontSize: 15),
                   decoration: InputDecoration(
-                    hintText: 'Buscar Evento',
-                    hintStyle: TextStyle(color: Colors.white70, fontSize: 16),
+                    hintText: 'Buscar evento',
+                    hintStyle: GoogleFonts.inter(
+                      color: AppColors.textoSecundarioGris,
+                      fontSize: 15,
+                    ),
                     border: InputBorder.none,
-                    suffixIcon: Icon(Icons.search, color: Colors.white),
+                    suffixIcon: const Icon(Icons.search, color: AppColors.fondoAzulNoche),
                   ),
                 ),
               ),
               const SizedBox(height: 25),
-
               Expanded(
                 child: StreamBuilder<List<EventModel>>(
                   stream: databaseService.streamEvents(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator(color: AppColors.acentoBronce));
                     }
                     if (snapshot.hasError) {
-                      return Center(child: Text('Error al cargar eventos: ${snapshot.error}'));
+                      return Center(
+                        child: Text(
+                          'Error al cargar eventos',
+                          style: GoogleFonts.inter(color: AppColors.alertaLadrillo),
+                        ),
+                      );
                     }
                     final events = snapshot.data ?? [];
                     if (events.isEmpty) {
-                      return const Center(
+                      return Center(
                         child: Text(
                           'Todavía no hay eventos registrados.',
-                          style: TextStyle(color: AppColors.textMuted, fontSize: 14),
+                          style: GoogleFonts.inter(
+                            color: AppColors.textoSecundarioGris,
+                            fontSize: 14,
+                          ),
                         ),
                       );
                     }
@@ -106,54 +132,75 @@ class HomeScreen extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
-          gradient: const LinearGradient(
-            colors: [Color(0xFFC4BDB0), Color(0xFF9E988F)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+          color: AppColors.superficiePorcelana,
+          borderRadius: BorderRadius.circular(8),
+          border: const Border(
+            left: BorderSide(color: AppColors.acentoBronce, width: 4),
           ),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 6))],
         ),
-        child: Stack(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Positioned(left: 0, top: 15, bottom: 15, child: Container(width: 4, color: Colors.black)),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          event.name,
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black, height: 1.1),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                        decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)),
-                        child: Text(statusLabel, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500)),
-                      ),
-                    ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    event.name,
+                    style: GoogleFonts.fraunces(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.fondoAzulNoche,
+                      height: 1.1,
+                    ),
                   ),
-                  const SizedBox(height: 15),
-                  StreamBuilder<List<GuestModel>>(
-                    stream: DatabaseService().streamGuestsForEvent(event.id),
-                    builder: (context, snapshot) {
-                      final count = snapshot.hasData
-                          ? snapshot.data!.length
-                          : event.guestCount;
-                      return Text(
-                        '${event.location} • $count invitados',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87),
-                      );
-                    },
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: event.status == 'en_curso'
+                            ? AppColors.exitoVerdeSalvia
+                            : AppColors.textoSecundarioGris,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      statusLabel,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: event.status == 'en_curso'
+                            ? AppColors.exitoVerdeSalvia
+                            : AppColors.textoSecundarioGris,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            StreamBuilder<List<GuestModel>>(
+              stream: DatabaseService().streamGuestsForEvent(event.id),
+              builder: (context, snapshot) {
+                final count = snapshot.hasData
+                    ? snapshot.data!.length
+                    : event.guestCount;
+                return Text(
+                  '${event.location} • $count invitados',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textoSecundarioGris,
                   ),
-                ],
-              ),
+                );
+              },
             ),
           ],
         ),
@@ -163,10 +210,7 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildBottomNavigationBar(BuildContext context) {
     return BottomNavigationBar(
-        backgroundColor: AppColors.surfaceCard,
       currentIndex: 0,
-      selectedItemColor: Colors.black,
-      unselectedItemColor: Colors.grey,
       onTap: (index) {
         if (index == 1) {
           Navigator.push(
