@@ -57,10 +57,19 @@ class _CompatibilityRulesScreenState extends State<CompatibilityRulesScreen> {
     await _databaseService.deleteCompatibilityRule(ruleId);
   }
 
-  InputDecoration _dropdownDecoration(String label) {
+  Widget _buildLabel(String text) {
+    return Text(
+      text,
+      style: GoogleFonts.inter(
+        color: AppColors.acentoBronce,
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+
+  InputDecoration _dropdownDecoration() {
     return InputDecoration(
-      labelText: label,
-      labelStyle: GoogleFonts.inter(color: AppColors.acentoBronce, fontSize: 14),
       filled: true,
       fillColor: AppColors.superficiePorcelana,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -112,6 +121,8 @@ class _CompatibilityRulesScreenState extends State<CompatibilityRulesScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
+                _buildLabel('Invitado A'),
+                const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
                   initialValue: _guestA == null
                       ? null
@@ -132,9 +143,11 @@ class _CompatibilityRulesScreenState extends State<CompatibilityRulesScreen> {
                       .toList(),
                   onChanged: (v) =>
                       setState(() => _guestA = v == null ? null : labelToName[v]),
-                  decoration: _dropdownDecoration('Invitado A'),
+                  decoration: _dropdownDecoration(),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 14),
+                _buildLabel('Invitado B'),
+                const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
                   initialValue: _guestB == null
                       ? null
@@ -155,9 +168,11 @@ class _CompatibilityRulesScreenState extends State<CompatibilityRulesScreen> {
                       .toList(),
                   onChanged: (v) =>
                       setState(() => _guestB = v == null ? null : labelToName[v]),
-                  decoration: _dropdownDecoration('Invitado B'),
+                  decoration: _dropdownDecoration(),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 14),
+                _buildLabel('Tipo de regla'),
+                const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
                   initialValue: _ruleType,
                   dropdownColor: AppColors.superficiePorcelana,
@@ -177,7 +192,7 @@ class _CompatibilityRulesScreenState extends State<CompatibilityRulesScreen> {
                   onChanged: (v) {
                     if (v != null) setState(() => _ruleType = v);
                   },
-                  decoration: _dropdownDecoration('Tipo de regla'),
+                  decoration: _dropdownDecoration(),
                 ),
                 const SizedBox(height: 14),
                 ElevatedButton(
