@@ -151,8 +151,14 @@ class DatabaseService {
   }
 
   /// Marca la distribución del evento como aprobada.
-  Future<void> approveDistribution(String eventId) {
-    return _db.collection('events').doc(eventId).update({'distributionApproved': true});
+  ///
+  /// [source] indica qué motor la generó: 'ai' o 'algorithm'.
+  /// Se persiste en Firestore para saber después cómo se creó.
+  Future<void> approveDistribution(String eventId, {String source = 'algorithm'}) {
+    return _db.collection('events').doc(eventId).update({
+      'distributionApproved': true,
+      'distributionSource': source,
+    });
   }
 
   /// Marca la distribución del evento como pendiente (no aprobada).

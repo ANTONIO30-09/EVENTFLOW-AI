@@ -7,6 +7,7 @@ import '../../data/models/compatibility_rule_model.dart';
 import '../../data/services/database_service.dart';
 import '../../data/services/seating_service.dart';
 import '../../data/services/ai_explanation_service.dart';
+import '../../data/services/ai_seating_service.dart';
 
 class SuggestedDistributionScreen extends StatefulWidget {
   final String eventId;
@@ -20,8 +21,10 @@ class _SuggestedDistributionScreenState extends State<SuggestedDistributionScree
   final DatabaseService _databaseService = DatabaseService();
   final SeatingService _seatingService = SeatingService();
   final AiExplanationService _aiService = AiExplanationService();
+  final AiSeatingService _aiSeatingService = AiSeatingService();
 
   bool _loading = true;
+  bool _aiGenerating = false;
   String? _error;
   DistributionResult? _distribution;
   bool _approved = false;
@@ -48,9 +51,26 @@ class _SuggestedDistributionScreenState extends State<SuggestedDistributionScree
       final rules = await _databaseService.fetchCompatibilityRulesForEvent(widget.eventId);
       final event = await _databaseService.fetchEventById(widget.eventId);
       final approved = event?.distributionApproved ?? false;
-      final result = approved
-          ? _seatingService.fromCurrentAssignments(guests: guests, tables: tables)
-          : _seatingService.generateDistribution(guests: guests, tables: tables, rules: rules);
+      final eventSource = event?.distributionSource ?? '';
+
+      DistributionResult result;
+      if (approved) {
+        final base = _seatingService.fromCurrentAssignments(guests: guests, tables: tables);
+        final src = eventSource == 'ai'
+            ? DistributionSource.ai
+            : (eventSource == 'manual'
+                ? DistributionSource.manual
+                : DistributionSource.algorithm);
+        result = DistributionResult(
+          assignments: base.assignments,
+          unassignedGuests: base.unassignedGuests,
+          warning: base.warning,
+          source: src,
+        );
+      } else {
+        result = _seatingService.generateDistribution(
+            guests: guests, tables: tables, rules: rules);
+      }
       if (!mounted) return;
       setState(() {
         _distribution = result;
@@ -62,6 +82,84 @@ class _SuggestedDistributionScreenState extends State<SuggestedDistributionScree
     } catch (e) {
       if (!mounted) return;
       setState(() { _error = 'Error al cargar'; _loading = false; });
+    }
+  }
+
+  Future<void> _generateWithAI() async {
+    if (_approved) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: AppColors.superficiePorcelana,
+          title: Text('Generar con IA',
+              style: GoogleFonts.fraunces(color: AppColors.fondoAzulNoche, fontWeight: FontWeight.w700)),
+          content: Text('Esto descarta la aprobación actual. ¿Continuar?',
+              style: GoogleFonts.inter(color: AppColors.fondoAzulNoche)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text('Cancelar', style: GoogleFonts.inter(color: AppColors.textoSecundarioGris)),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.acentoBronce,
+                foregroundColor: AppColors.fondoAzulNoche,
+              ),
+              child: Text('Generar', style: GoogleFonts.inter(fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+      );
+      if (confirm != true) return;
+      await _databaseService.unapproveDistribution(widget.eventId);
+    }
+
+    setState(() {
+      _aiGenerating = true;
+      _explanation = null;
+      _error = null;
+    });
+
+    try {
+      final guests = await _databaseService.fetchGuestsForEvent(widget.eventId);
+      final tables = await _databaseService.fetchTablesForEvent(widget.eventId);
+      final rules = await _databaseService.fetchCompatibilityRulesForEvent(widget.eventId);
+      final event = await _databaseService.fetchEventById(widget.eventId);
+      final eventName = event?.name ?? 'Evento';
+
+      final result = await _aiSeatingService.generateWithAI(
+        eventName: eventName,
+        guests: guests,
+        tables: tables,
+        rules: rules,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _distribution = result;
+        _tables = tables;
+        _rules = rules;
+        _approved = false;
+        _aiGenerating = false;
+      });
+
+      if (result.source == DistributionSource.algorithm) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('La IA no pudo generar una distribución válida, se usó el algoritmo estándar.',
+                style: GoogleFonts.inter(color: AppColors.superficiePorcelana)),
+            backgroundColor: AppColors.alertaLadrillo,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _aiGenerating = false;
+        _error = 'Error al generar con IA';
+      });
     }
   }
 
@@ -137,7 +235,8 @@ class _SuggestedDistributionScreenState extends State<SuggestedDistributionScree
       }
     }
 
-    await _databaseService.approveDistribution(widget.eventId);
+    final sourceStr = dist.source == DistributionSource.ai ? 'ai' : 'algorithm';
+    await _databaseService.approveDistribution(widget.eventId, source: sourceStr);
     if (!mounted) return;
     setState(() { _approved = true; });
     ScaffoldMessenger.of(context).showSnackBar(
@@ -401,10 +500,18 @@ class _SuggestedDistributionScreenState extends State<SuggestedDistributionScree
             ),
           ),
         const SizedBox(height: 16),
+        if (_aiGenerating) ...[
+          const Center(child: CircularProgressIndicator(color: AppColors.acentoBronce)),
+          const SizedBox(height: 12),
+          Text('Consultando a la IA...',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(color: AppColors.textoSecundarioGris, fontSize: 13)),
+          const SizedBox(height: 16),
+        ],
         ElevatedButton.icon(
-          onPressed: _generateExplanation,
+          onPressed: _aiGenerating ? null : _generateWithAI,
           icon: const Icon(Icons.auto_awesome),
-          label: Text('Explicar distribución',
+          label: Text('Generar con IA',
               style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13)),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.acentoBronce,
@@ -415,9 +522,22 @@ class _SuggestedDistributionScreenState extends State<SuggestedDistributionScree
         ),
         const SizedBox(height: 10),
         OutlinedButton.icon(
-          onPressed: _regenerate,
-          icon: const Icon(Icons.refresh),
-          label: Text('Regenerar distribución',
+          onPressed: _aiGenerating ? null : _regenerate,
+          icon: const Icon(Icons.settings),
+          label: Text('Usar algoritmo estándar',
+              style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13)),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.acentoBronce,
+            side: const BorderSide(color: AppColors.acentoBronce),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          ),
+        ),
+        const SizedBox(height: 10),
+        OutlinedButton.icon(
+          onPressed: _generateExplanation,
+          icon: const Icon(Icons.description_outlined),
+          label: Text('Explicar distribución',
               style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13)),
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.acentoBronce,
@@ -457,18 +577,80 @@ class _SuggestedDistributionScreenState extends State<SuggestedDistributionScree
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: color, width: 1),
       ),
-      child: Row(children: [
-        Icon(icon, color: color, size: 20),
-        const SizedBox(width: 10),
-        Text(
-          text,
-          style: GoogleFonts.inter(
-            color: color,
-            fontWeight: FontWeight.w700,
-            fontSize: 13,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(width: 10),
+            Text(
+              text,
+              style: GoogleFonts.inter(
+                color: color,
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+            ),
+          ]),
+          const SizedBox(height: 8),
+          _buildSourceChip(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSourceChip() {
+    final dist = _distribution;
+    if (dist == null) return const SizedBox.shrink();
+
+    final IconData icon;
+    final String label;
+    final Color color;
+
+    switch (dist.source) {
+      case DistributionSource.ai:
+        icon = Icons.auto_awesome;
+        label = 'Generada por IA';
+        color = AppColors.acentoBronce;
+        break;
+      case DistributionSource.algorithm:
+        icon = Icons.settings;
+        label = 'Generada por algoritmo';
+        color = AppColors.textoSecundarioGris;
+        break;
+      case DistributionSource.manual:
+        icon = Icons.edit;
+        label = 'Ajustada manualmente';
+        color = AppColors.textoSecundarioGris;
+        break;
+      case DistributionSource.none:
+        icon = Icons.help_outline;
+        label = 'Sin fuente conocida';
+        color = AppColors.textoSecundarioGris;
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color, width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 14),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              color: color,
+              fontWeight: FontWeight.w600,
+              fontSize: 11,
+            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }
