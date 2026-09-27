@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/scan_item_model.dart';
@@ -37,7 +38,11 @@ class _InventoryScannerScreenState extends State<InventoryScannerScreen> {
       if (scanItem == null) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No existe un ítem con ese ID.')),
+          SnackBar(
+            content: Text('No existe un ítem con ese ID.',
+                style: GoogleFonts.inter(color: AppColors.superficiePorcelana)),
+            backgroundColor: AppColors.alertaLadrillo,
+          ),
         );
         return;
       }
@@ -50,12 +55,20 @@ class _InventoryScannerScreenState extends State<InventoryScannerScreen> {
         if (recentScans.length > 5) recentScans.removeLast();
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ítem escaneado: ${scanItem.name}')),
+        SnackBar(
+          content: Text('Ítem escaneado: ${scanItem.name}',
+              style: GoogleFonts.inter(color: AppColors.superficiePorcelana)),
+          backgroundColor: AppColors.exitoVerdeSalvia,
+        ),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al procesar el QR: $e')),
+        SnackBar(
+          content: Text('Error al procesar el QR',
+              style: GoogleFonts.inter(color: AppColors.superficiePorcelana)),
+          backgroundColor: AppColors.alertaLadrillo,
+        ),
       );
     } finally {
       if (mounted) setState(() => _isProcessing = false);
@@ -72,27 +85,30 @@ class _InventoryScannerScreenState extends State<InventoryScannerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.fondoAzulNoche,
       appBar: AppBar(
-        title: const Text('ESCANER DE INVENTARIO', style: TextStyle(fontWeight: FontWeight.bold)),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        title: const Text('Escáner de Inventario'),
       ),
       body: Column(
         children: [
           if (!_showManualEntry)
             Expanded(
               flex: 3,
-              child: MobileScanner(
-                controller: MobileScannerController(
-                  formats: const [BarcodeFormat.qrCode],
-                  detectionSpeed: DetectionSpeed.noDuplicates,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: MobileScanner(
+                    controller: MobileScannerController(
+                      formats: const [BarcodeFormat.qrCode],
+                      detectionSpeed: DetectionSpeed.noDuplicates,
+                    ),
+                    onDetect: (capture) {
+                      final String? rawValue = capture.barcodes.first.rawValue;
+                      _handleScanResult(rawValue);
+                    },
+                  ),
                 ),
-                onDetect: (capture) {
-                  final String? rawValue = capture.barcodes.first.rawValue;
-                  _handleScanResult(rawValue);
-                },
               ),
             )
           else
@@ -103,84 +119,132 @@ class _InventoryScannerScreenState extends State<InventoryScannerScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    TextField(
-                      controller: _manualIdController,
-                      decoration: InputDecoration(
-                        hintText: 'Ingresar ID del QR',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.superficiePorcelana,
+                        borderRadius: BorderRadius.circular(30),
                       ),
-                      onSubmitted: (_) => _handleManualId(),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: TextField(
+                        controller: _manualIdController,
+                        style: GoogleFonts.inter(color: AppColors.fondoAzulNoche, fontSize: 15),
+                        decoration: InputDecoration(
+                          hintText: 'Ingresar ID del QR',
+                          hintStyle: GoogleFonts.inter(
+                            color: AppColors.textoSecundarioGris,
+                            fontSize: 15,
+                          ),
+                          border: InputBorder.none,
+                        ),
+                        onSubmitted: (_) => _handleManualId(),
+                      ),
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: _handleManualId,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                        backgroundColor: AppColors.acentoBronce,
+                        foregroundColor: AppColors.fondoAzulNoche,
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                       ),
-                      child: const Text('VALIDAR ID'),
+                      child: Text(
+                        'VALIDAR ID',
+                        style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 14),
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextButton.icon(
-                onPressed: () => setState(() => _showManualEntry = !_showManualEntry),
-                icon: const Icon(Icons.edit),
-                label: Text(_showManualEntry ? 'Usar cámara' : 'QR manualmente'),
-              ),
-            ],
+          TextButton.icon(
+            onPressed: () => setState(() => _showManualEntry = !_showManualEntry),
+            icon: Icon(_showManualEntry ? Icons.qr_code_scanner : Icons.edit, color: AppColors.acentoBronce),
+            label: Text(
+              _showManualEntry ? 'Usar cámara' : 'QR manualmente',
+              style: GoogleFonts.inter(color: AppColors.acentoBronce, fontWeight: FontWeight.w600),
+            ),
           ),
           if (!_showManualEntry)
-            const Text(
-              'APUNTA LA CÁMARA AL CÓDIGO QR DEL MOBILIARIO\nMANTÉN EL CELULAR ESTABLE',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.black54, fontSize: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                'Apunta la cámara al código QR del mobiliario\nMantén el celular estable',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  color: AppColors.textoSecundarioGris,
+                  fontSize: 12,
+                ),
+              ),
             ),
           const SizedBox(height: 10),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('ÚLTIMOS ESCANEOS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                Text(
+                  'ÚLTIMOS ESCANEOS',
+                  style: GoogleFonts.fraunces(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 18,
+                    color: AppColors.acentoBronce,
+                  ),
+                ),
               ],
             ),
           ),
           Expanded(
             flex: 2,
             child: recentScans.isEmpty
-                ? const Center(
+                ? Center(
                     child: Text(
                       'Aún no hay escaneos.',
-                      style: TextStyle(color: Colors.grey),
+                      style: GoogleFonts.inter(color: AppColors.textoSecundarioGris),
                     ),
                   )
                 : ListView.builder(
                     itemCount: recentScans.length,
                     itemBuilder: (context, index) {
                       final scan = recentScans[index];
-                      return Card(
+                      return Container(
                         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(scan.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                              const SizedBox(height: 4),
-                              Text(scan.location, style: const TextStyle(color: Colors.black54)),
-                              const SizedBox(height: 4),
-                              Text(scan.timeAgo, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                            ],
+                        decoration: BoxDecoration(
+                          color: AppColors.superficiePorcelana,
+                          borderRadius: BorderRadius.circular(8),
+                          border: const Border(
+                            left: BorderSide(color: AppColors.acentoBronce, width: 4),
                           ),
+                        ),
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              scan.name,
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
+                                color: AppColors.fondoAzulNoche,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              scan.location,
+                              style: GoogleFonts.inter(
+                                color: AppColors.textoSecundarioGris,
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              scan.timeAgo,
+                              style: GoogleFonts.inter(
+                                color: AppColors.textoSecundarioGris,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     },
@@ -194,10 +258,7 @@ class _InventoryScannerScreenState extends State<InventoryScannerScreen> {
 
   Widget _buildBottomNavigationBar(BuildContext context) {
     return BottomNavigationBar(
-        backgroundColor: AppColors.surfaceCard,
       currentIndex: 1,
-      selectedItemColor: Colors.black,
-      unselectedItemColor: Colors.grey,
       onTap: (index) {
         if (index == 0) {
           Navigator.popUntil(context, (route) => route.isFirst);
@@ -224,5 +285,4 @@ class _InventoryScannerScreenState extends State<InventoryScannerScreen> {
       ],
     );
   }
-
 }

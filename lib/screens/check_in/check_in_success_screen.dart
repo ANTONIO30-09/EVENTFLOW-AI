@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/guest_model.dart';
 
@@ -9,26 +10,45 @@ class CheckInSuccessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.fondoAzulNoche,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.check_circle, color: Colors.green, size: 80),
+              const Icon(Icons.check_circle, color: AppColors.exitoVerdeSalvia, size: 80),
               const SizedBox(height: 20),
-              const Text('CHECK - IN', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+              Text(
+                'CHECK - IN',
+                style: GoogleFonts.fraunces(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.acentoBronce,
+                ),
+              ),
               const SizedBox(height: 10),
-              const Text('Ingreso confirmado', style: TextStyle(fontSize: 18, color: Colors.black54)),
-              const Text('El invitado fue registrado exitosamente', style: TextStyle(fontSize: 16)),
+              Text(
+                'Ingreso confirmado',
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  color: AppColors.textoSecundarioGris,
+                ),
+              ),
+              Text(
+                'El invitado fue registrado exitosamente',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: AppColors.textoSecundarioGris,
+                ),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 40),
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
+                  color: AppColors.superficiePorcelana,
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Column(
                   children: [
@@ -41,8 +61,8 @@ class CheckInSuccessScreen extends StatelessWidget {
                     _infoRow('Acompañante', '+${guest.companions}'),
                     const Divider(),
                     _infoRow('Ingreso', guest.checkInTime != null
-    ? guest.checkInTime!.toString().substring(11, 19)
-    : '--:--:--'),
+                        ? guest.checkInTime!.toString().substring(11, 19)
+                        : '--:--:--'),
                   ],
                 ),
               ),
@@ -57,7 +77,13 @@ class CheckInSuccessScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
-                  child: const Text('SIGUIENTE INVITADO', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    'SIGUIENTE INVITADO',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -73,8 +99,24 @@ class CheckInSuccessScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          Text(value, style: const TextStyle(fontSize: 16)),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: AppColors.fondoAzulNoche,
+            ),
+          ),
+          Flexible(
+            child: Text(
+              value,
+              style: GoogleFonts.inter(
+                fontSize: 15,
+                color: AppColors.textoSecundarioGris,
+              ),
+              textAlign: TextAlign.right,
+            ),
+          ),
         ],
       ),
     );
