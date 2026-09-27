@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import '../core/constants/app_colors.dart';
 
@@ -108,37 +107,24 @@ class _LogoSplashState extends State<LogoSplash> with TickerProviderStateMixin {
                   opacity: _logoOpacity.value,
                   child: Transform.scale(
                     scale: _logoScale.value,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Capa de glow: misma imagen, difuminada y coloreada en bronce.
-                        ImageFiltered(
-                          imageFilter: ui.ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-                          child: ColorFiltered(
-                            colorFilter: ColorFilter.mode(
-                              AppColors.acentoBronce.withValues(alpha: 0.65),
-                              BlendMode.srcIn,
-                            ),
-                            child: Image.asset(
-                              'assets/images/logo.png',
-                              height: 160,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Icon(Icons.blur_on,
-                                    size: 120, color: AppColors.acentoBronce);
-                              },
-                            ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.acentoBronce.withValues(alpha: 0.3),
+                            blurRadius: 40,
+                            spreadRadius: 4,
                           ),
-                        ),
-                        // Logo original encima.
-                        Image.asset(
-                          'assets/images/logo.png',
-                          height: 160,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(Icons.blur_on,
-                                size: 120, color: AppColors.acentoBronce);
-                          },
-                        ),
-                      ],
+                        ],
+                      ),
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        height: 160,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(Icons.blur_on,
+                              size: 120, color: AppColors.acentoBronce);
+                        },
+                      ),
                     ),
                   ),
                 );
