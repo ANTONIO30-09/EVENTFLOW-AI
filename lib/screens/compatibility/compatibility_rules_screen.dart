@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/compatibility_rule_model.dart';
 import '../../data/models/guest_model.dart';
@@ -22,7 +23,11 @@ class _CompatibilityRulesScreenState extends State<CompatibilityRulesScreen> {
     if (_guestA == null || _guestB == null) return;
     if (_guestA == _guestB) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Elegí dos invitados distintos')),
+        SnackBar(
+          content: Text('Elegí dos invitados distintos',
+              style: GoogleFonts.inter(color: AppColors.superficiePorcelana)),
+          backgroundColor: AppColors.alertaLadrillo,
+        ),
       );
       return;
     }
@@ -40,7 +45,11 @@ class _CompatibilityRulesScreenState extends State<CompatibilityRulesScreen> {
       _guestB = null;
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Regla agregada')),
+      SnackBar(
+        content: Text('Regla agregada',
+            style: GoogleFonts.inter(color: AppColors.superficiePorcelana)),
+        backgroundColor: AppColors.exitoVerdeSalvia,
+      ),
     );
   }
 
@@ -48,14 +57,43 @@ class _CompatibilityRulesScreenState extends State<CompatibilityRulesScreen> {
     await _databaseService.deleteCompatibilityRule(ruleId);
   }
 
+  Widget _buildLabel(String text) {
+    return Text(
+      text,
+      style: GoogleFonts.inter(
+        color: AppColors.acentoBronce,
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+
+  InputDecoration _dropdownDecoration() {
+    return InputDecoration(
+      filled: true,
+      fillColor: AppColors.superficiePorcelana,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: AppColors.acentoBronce, width: 1.5),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.fondoAzulNoche,
       appBar: AppBar(
         title: const Text('Reglas de Compatibilidad'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
       ),
       body: StreamBuilder<List<GuestModel>>(
         stream: _databaseService.streamGuestsForEvent(widget.eventId),
@@ -74,64 +112,178 @@ class _CompatibilityRulesScreenState extends State<CompatibilityRulesScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Nueva regla', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                Text(
+                  'Nueva regla',
+                  style: GoogleFonts.fraunces(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 20,
+                    color: AppColors.acentoBronce,
+                  ),
+                ),
                 const SizedBox(height: 12),
+                _buildLabel('Invitado A'),
+                const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
-                  initialValue: _guestA == null ? null : labels.firstWhere((l) => labelToName[l] == _guestA, orElse: () => labels.first),
+                  initialValue: _guestA == null
+                      ? null
+                      : labels.firstWhere(
+                          (l) => labelToName[l] == _guestA,
+                          orElse: () => labels.first,
+                        ),
                   isExpanded: true,
-                  items: labels.map((l) => DropdownMenuItem(value: l, child: Text(l, overflow: TextOverflow.ellipsis))).toList(),
-                  onChanged: (v) => setState(() => _guestA = v == null ? null : labelToName[v]),
-                  decoration: const InputDecoration(labelText: 'Invitado A', border: OutlineInputBorder()),
+                  dropdownColor: AppColors.superficiePorcelana,
+                  style: GoogleFonts.inter(color: AppColors.fondoAzulNoche, fontSize: 14),
+                  items: labels
+                      .map((l) => DropdownMenuItem(
+                            value: l,
+                            child: Text(l,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.inter(color: AppColors.fondoAzulNoche)),
+                          ))
+                      .toList(),
+                  onChanged: (v) =>
+                      setState(() => _guestA = v == null ? null : labelToName[v]),
+                  decoration: _dropdownDecoration(),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 14),
+                _buildLabel('Invitado B'),
+                const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
-                  initialValue: _guestB == null ? null : labels.firstWhere((l) => labelToName[l] == _guestB, orElse: () => labels.first),
+                  initialValue: _guestB == null
+                      ? null
+                      : labels.firstWhere(
+                          (l) => labelToName[l] == _guestB,
+                          orElse: () => labels.first,
+                        ),
                   isExpanded: true,
-                  items: labels.map((l) => DropdownMenuItem(value: l, child: Text(l, overflow: TextOverflow.ellipsis))).toList(),
-                  onChanged: (v) => setState(() => _guestB = v == null ? null : labelToName[v]),
-                  decoration: const InputDecoration(labelText: 'Invitado B', border: OutlineInputBorder()),
+                  dropdownColor: AppColors.superficiePorcelana,
+                  style: GoogleFonts.inter(color: AppColors.fondoAzulNoche, fontSize: 14),
+                  items: labels
+                      .map((l) => DropdownMenuItem(
+                            value: l,
+                            child: Text(l,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.inter(color: AppColors.fondoAzulNoche)),
+                          ))
+                      .toList(),
+                  onChanged: (v) =>
+                      setState(() => _guestB = v == null ? null : labelToName[v]),
+                  decoration: _dropdownDecoration(),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 14),
+                _buildLabel('Tipo de regla'),
+                const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
                   initialValue: _ruleType,
-                  items: const [
-                    DropdownMenuItem(value: 'forbid', child: Text('No sentar juntos')),
-                    DropdownMenuItem(value: 'prefer', child: Text('Sentar juntos')),
+                  dropdownColor: AppColors.superficiePorcelana,
+                  style: GoogleFonts.inter(color: AppColors.fondoAzulNoche, fontSize: 14),
+                  items: [
+                    DropdownMenuItem(
+                      value: 'forbid',
+                      child: Text('No sentar juntos',
+                          style: GoogleFonts.inter(color: AppColors.fondoAzulNoche)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'prefer',
+                      child: Text('Sentar juntos',
+                          style: GoogleFonts.inter(color: AppColors.fondoAzulNoche)),
+                    ),
                   ],
-                  onChanged: (v) { if (v != null) setState(() => _ruleType = v); },
-                  decoration: const InputDecoration(labelText: 'Tipo de regla', border: OutlineInputBorder()),
+                  onChanged: (v) {
+                    if (v != null) setState(() => _ruleType = v);
+                  },
+                  decoration: _dropdownDecoration(),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 ElevatedButton(
                   onPressed: _addRule,
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white),
-                  child: const Text('AGREGAR REGLA'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.acentoBronce,
+                    foregroundColor: AppColors.fondoAzulNoche,
+                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  ),
+                  child: Text(
+                    'AGREGAR REGLA',
+                    style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13),
+                  ),
                 ),
                 const SizedBox(height: 24),
-                const Text('Reglas del evento', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                const SizedBox(height: 8),
+                Text(
+                  'Reglas del evento',
+                  style: GoogleFonts.fraunces(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 20,
+                    color: AppColors.acentoBronce,
+                  ),
+                ),
+                const SizedBox(height: 12),
                 Expanded(
                   child: StreamBuilder<List<CompatibilityRule>>(
                     stream: _databaseService.streamCompatibilityRulesForEvent(widget.eventId),
                     builder: (context, ruleSnap) {
                       final rules = ruleSnap.data ?? [];
-                      if (rules.isEmpty) return const Center(child: Text('No hay reglas cargadas.'));
+                      if (rules.isEmpty) {
+                        return Center(
+                          child: Text(
+                            'No hay reglas cargadas.',
+                            style: GoogleFonts.inter(color: AppColors.textoSecundarioGris),
+                          ),
+                        );
+                      }
                       return ListView.builder(
                         itemCount: rules.length,
                         itemBuilder: (context, i) {
                           final rule = rules[i];
-                          return Card(
-                            child: ListTile(
-                              title: Text('${rule.guestA} - ${rule.guestB}'),
-                              subtitle: Text(rule.ruleType == 'forbid' ? 'No sentar juntos' : 'Sentar juntos'),
-                              leading: Icon(
-                                rule.ruleType == 'forbid' ? Icons.block : Icons.favorite,
-                                color: rule.ruleType == 'forbid' ? Colors.red : Colors.green,
+                          final isForbid = rule.ruleType == 'forbid';
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            decoration: BoxDecoration(
+                              color: AppColors.superficiePorcelana,
+                              borderRadius: BorderRadius.circular(8),
+                              border: const Border(
+                                left: BorderSide(color: AppColors.acentoBronce, width: 4),
                               ),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () => _deleteRule(rule.id),
-                              ),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  isForbid ? Icons.block : Icons.favorite,
+                                  color: isForbid
+                                      ? AppColors.alertaLadrillo
+                                      : AppColors.exitoVerdeSalvia,
+                                  size: 22,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${rule.guestA} - ${rule.guestB}',
+                                        style: GoogleFonts.inter(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14,
+                                          color: AppColors.fondoAzulNoche,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        isForbid ? 'No sentar juntos' : 'Sentar juntos',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 12,
+                                          color: AppColors.textoSecundarioGris,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: AppColors.alertaLadrillo, size: 20),
+                                  onPressed: () => _deleteRule(rule.id),
+                                ),
+                              ],
                             ),
                           );
                         },

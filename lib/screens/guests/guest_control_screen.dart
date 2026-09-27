@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/guest_model.dart';
 import '../../data/services/database_service.dart';
@@ -56,23 +57,32 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.fondoAzulNoche,
       appBar: AppBar(
-        title: const Text('Control de Invitados', style: TextStyle(fontWeight: FontWeight.bold)),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        title: const Text('Control de Invitados'),
       ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Buscar por nombre',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.superficiePorcelana,
+                borderRadius: BorderRadius.circular(30),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextField(
+                controller: _searchController,
+                style: GoogleFonts.inter(color: AppColors.fondoAzulNoche, fontSize: 15),
+                decoration: InputDecoration(
+                  hintText: 'Buscar por nombre',
+                  hintStyle: GoogleFonts.inter(
+                    color: AppColors.textoSecundarioGris,
+                    fontSize: 15,
+                  ),
+                  prefixIcon: const Icon(Icons.search, color: AppColors.fondoAzulNoche),
+                  border: InputBorder.none,
+                ),
               ),
             ),
           ),
@@ -81,12 +91,17 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
               stream: _guestsStream,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                    child: CircularProgressIndicator(color: AppColors.acentoBronce),
+                  );
                 }
 
                 if (snapshot.hasError) {
                   return Center(
-                    child: Text('Error al cargar invitados: ${snapshot.error}'),
+                    child: Text(
+                      'Error al cargar invitados',
+                      style: GoogleFonts.inter(color: AppColors.alertaLadrillo),
+                    ),
                   );
                 }
 
@@ -121,10 +136,13 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
                     const SizedBox(height: 16),
                     Expanded(
                       child: filteredGuests.isEmpty
-                          ? const Center(
+                          ? Center(
                               child: Text(
                                 'No hay invitados para los filtros seleccionados.',
-                                style: TextStyle(color: AppColors.textMuted, fontSize: 14),
+                                style: GoogleFonts.inter(
+                                  color: AppColors.textoSecundarioGris,
+                                  fontSize: 14,
+                                ),
                               ),
                             )
                           : ListView.builder(
@@ -132,20 +150,70 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
                               itemCount: filteredGuests.length,
                               itemBuilder: (context, index) {
                                 final guest = filteredGuests[index];
-                                return Card(
+                                return Container(
                                   margin: const EdgeInsets.only(bottom: 12),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                  child: ListTile(
-                                    contentPadding: const EdgeInsets.all(12),
-                                    title: Text(guest.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                    subtitle: Text('${guest.tableNumber} • ${guest.familyGroup} • +${guest.companions} acompañante${guest.companions != 1 ? 's' : ''}'),
-                                    trailing: guest.checkedIn
-                                        ? const Icon(Icons.check_circle, color: Colors.green)
-                                        : TextButton(
-                                            onPressed: () => _checkInGuest(guest),
-                                            style: TextButton.styleFrom(foregroundColor: Colors.black),
-                                            child: const Text('Check-in'),
-                                          ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.superficiePorcelana,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: const Border(
+                                      left: BorderSide(color: AppColors.acentoBronce, width: 4),
+                                    ),
+                                  ),
+                                  padding: const EdgeInsets.all(12),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              guest.name,
+                                              style: GoogleFonts.inter(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w700,
+                                                color: AppColors.fondoAzulNoche,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              '${guest.tableNumber} • ${guest.familyGroup} • +${guest.companions} acompañante${guest.companions != 1 ? 's' : ''}',
+                                              style: GoogleFonts.inter(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                                color: AppColors.textoSecundarioGris,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      guest.checkedIn
+                                          ? const Icon(
+                                              Icons.check_circle,
+                                              color: AppColors.exitoVerdeSalvia,
+                                              size: 26,
+                                            )
+                                          : TextButton(
+                                              onPressed: () => _checkInGuest(guest),
+                                              style: TextButton.styleFrom(
+                                                foregroundColor: AppColors.fondoAzulNoche,
+                                                backgroundColor: AppColors.acentoBronce,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(20),
+                                                ),
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 14,
+                                                  vertical: 6,
+                                                ),
+                                              ),
+                                              child: Text(
+                                                'Check-in',
+                                                style: GoogleFonts.inter(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            ),
+                                    ],
                                   ),
                                 );
                               },
@@ -168,23 +236,23 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
       child: OutlinedButton(
         onPressed: () => _updateFilter(filterValue),
         style: OutlinedButton.styleFrom(
-          backgroundColor: isSelected ? Colors.black : Colors.white,
-          foregroundColor: isSelected ? Colors.white : Colors.black,
-          side: const BorderSide(color: Colors.black),
+          backgroundColor: isSelected ? AppColors.acentoBronce : Colors.transparent,
+          foregroundColor: isSelected ? AppColors.fondoAzulNoche : AppColors.acentoBronce,
+          side: const BorderSide(color: AppColors.acentoBronce),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           padding: const EdgeInsets.symmetric(vertical: 12),
         ),
-        child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12),
+        ),
       ),
     );
   }
 
   Widget _buildBottomNavigationBar(BuildContext context) {
     return BottomNavigationBar(
-      backgroundColor: AppColors.surfaceCard,
       currentIndex: 0,
-      selectedItemColor: Colors.black,
-      unselectedItemColor: Colors.grey,
       onTap: (index) {
         if (index == 0) {
           Navigator.popUntil(context, (route) => route.isFirst);
