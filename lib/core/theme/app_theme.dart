@@ -47,6 +47,24 @@ class AppTheme {
     return base.copyWith(
       textTheme: textTheme,
       primaryTextTheme: textTheme,
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.fondoAzulNoche,
+        foregroundColor: AppColors.acentoBronce,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: AppColors.acentoBronce),
+        titleTextStyle: GoogleFonts.inter(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: AppColors.acentoBronce,
+        ),
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AppColors.superficiePorcelana,
+        selectedItemColor: AppColors.fondoAzulNoche,
+        unselectedItemColor: AppColors.textoSecundarioGris,
+        selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.acentoBronce,
