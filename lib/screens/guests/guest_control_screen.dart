@@ -58,10 +58,7 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Control de Invitados', style: TextStyle(fontWeight: FontWeight.bold)),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        title: const Text('Control de Invitados'),
       ),
       body: Column(
         children: [
