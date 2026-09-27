@@ -54,8 +54,6 @@ class _CompatibilityRulesScreenState extends State<CompatibilityRulesScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Reglas de Compatibilidad'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
       ),
       body: StreamBuilder<List<GuestModel>>(
         stream: _databaseService.streamGuestsForEvent(widget.eventId),
