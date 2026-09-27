@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../core/constants/app_colors.dart';
 import '../../data/models/guest_model.dart';
 import '../../data/models/seating_table_model.dart';
 import '../../data/models/compatibility_rule_model.dart';
@@ -9,11 +11,12 @@ import '../../data/services/ai_explanation_service.dart';
 class SuggestedDistributionScreen extends StatefulWidget {
   final String eventId;
   const SuggestedDistributionScreen({super.key, required this.eventId});
+
   @override
-  State<SuggestedDistributionScreen> createState() => _State();
+  State<SuggestedDistributionScreen> createState() => _SuggestedDistributionScreenState();
 }
 
-class _State extends State<SuggestedDistributionScreen> {
+class _SuggestedDistributionScreenState extends State<SuggestedDistributionScreen> {
   final DatabaseService _databaseService = DatabaseService();
   final SeatingService _seatingService = SeatingService();
   final AiExplanationService _aiService = AiExplanationService();
@@ -58,8 +61,40 @@ class _State extends State<SuggestedDistributionScreen> {
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() { _error = 'Error: $e'; _loading = false; });
+      setState(() { _error = 'Error al cargar'; _loading = false; });
     }
+  }
+
+  Future<void> _regenerate() async {
+    if (_approved) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: AppColors.superficiePorcelana,
+          title: Text('Regenerar distribución',
+              style: GoogleFonts.fraunces(color: AppColors.fondoAzulNoche, fontWeight: FontWeight.w700)),
+          content: Text('Esto descarta los cambios manuales y la aprobación. ¿Continuar?',
+              style: GoogleFonts.inter(color: AppColors.fondoAzulNoche)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text('Cancelar', style: GoogleFonts.inter(color: AppColors.textoSecundarioGris)),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.acentoBronce,
+                foregroundColor: AppColors.fondoAzulNoche,
+              ),
+              child: Text('Regenerar', style: GoogleFonts.inter(fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+      );
+      if (confirm != true) return;
+      await _databaseService.unapproveDistribution(widget.eventId);
+    }
+    await _loadDistribution();
   }
 
   Future<void> _reloadFromCurrent() async {
@@ -69,25 +104,6 @@ class _State extends State<SuggestedDistributionScreen> {
       if (!mounted) return;
       setState(() { _distribution = current; _explanation = null; });
     } catch (_) {}
-  }
-
-  Future<void> _regenerate() async {
-    if (_approved) {
-      final confirm = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Regenerar distribución'),
-          content: const Text('Esto descarta los cambios manuales y la aprobación. ¿Continuar?'),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
-            ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Regenerar')),
-          ],
-        ),
-      );
-      if (confirm != true) return;
-      await _databaseService.unapproveDistribution(widget.eventId);
-    }
-    await _loadDistribution();
   }
 
   Future<void> _generateExplanation() async {
@@ -125,7 +141,11 @@ class _State extends State<SuggestedDistributionScreen> {
     if (!mounted) return;
     setState(() { _approved = true; });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Distribución aprobada')),
+      SnackBar(
+        content: Text('Distribución aprobada',
+            style: GoogleFonts.inter(color: AppColors.superficiePorcelana)),
+        backgroundColor: AppColors.exitoVerdeSalvia,
+      ),
     );
   }
 
@@ -137,33 +157,59 @@ class _State extends State<SuggestedDistributionScreen> {
     final dist = _distribution!;
     String? dest = destTables.first.name;
     bool moveFamily = false;
-    final familyMembers = guests.where((g) => g.familyGroup.isNotEmpty && g.familyGroup == guest.familyGroup && g.tableNumber == originTable && g.name != guest.name).toList();
+    final familyMembers = guests.where((g) =>
+        g.familyGroup.isNotEmpty &&
+        g.familyGroup == guest.familyGroup &&
+        g.tableNumber == originTable &&
+        g.name != guest.name).toList();
     final hasFamily = familyMembers.isNotEmpty;
 
     if (!mounted) return;
     await showDialog(context: context, builder: (ctx) {
       return StatefulBuilder(builder: (ctx, setDlg) {
         return AlertDialog(
-          title: Text('Mover a $guestName'),
+          backgroundColor: AppColors.superficiePorcelana,
+          title: Text('Mover a $guestName',
+              style: GoogleFonts.fraunces(color: AppColors.fondoAzulNoche, fontWeight: FontWeight.w700)),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             DropdownButtonFormField<String>(
               initialValue: dest,
+              dropdownColor: AppColors.superficiePorcelana,
+              style: GoogleFonts.inter(color: AppColors.fondoAzulNoche),
               items: destTables.map((t) {
                 final assigned = dist.assignments.firstWhere((a) => a.tableName == t.name, orElse: () => TableAssignment(tableName: t.name, guests: const [])).guests.length;
-                return DropdownMenuItem(value: t.name, child: Text('${t.name} ($assigned/${t.capacity})'));
+                return DropdownMenuItem(value: t.name, child: Text('${t.name} ($assigned/${t.capacity})',
+                    style: GoogleFonts.inter(color: AppColors.fondoAzulNoche)));
               }).toList(),
               onChanged: (v) => setDlg(() => dest = v),
-              decoration: const InputDecoration(labelText: 'Mesa destino'),
+              decoration: InputDecoration(
+                labelText: 'Mesa destino',
+                labelStyle: GoogleFonts.inter(color: AppColors.acentoBronce),
+                border: const OutlineInputBorder(),
+              ),
             ),
-            if (hasFamily) SwitchListTile(
-              value: moveFamily,
-              onChanged: (v) => setDlg(() => moveFamily = v),
-              title: Text('Mover también a ${familyMembers.length} de ${guest.familyGroup}'),
-            ),
+            if (hasFamily)
+              SwitchListTile(
+                value: moveFamily,
+                activeThumbColor: AppColors.acentoBronce,
+                onChanged: (v) => setDlg(() => moveFamily = v),
+                title: Text('Mover también a ${familyMembers.length} de ${guest.familyGroup}',
+                    style: GoogleFonts.inter(color: AppColors.fondoAzulNoche, fontSize: 13)),
+              ),
           ]),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')),
-            ElevatedButton(onPressed: () { Navigator.pop(ctx, {'dest': dest, 'family': moveFamily, 'members': familyMembers}); }, child: const Text('Mover')),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('Cancelar', style: GoogleFonts.inter(color: AppColors.textoSecundarioGris)),
+            ),
+            ElevatedButton(
+              onPressed: () { Navigator.pop(ctx, {'dest': dest, 'family': moveFamily, 'members': familyMembers}); },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.acentoBronce,
+                foregroundColor: AppColors.fondoAzulNoche,
+              ),
+              child: Text('Mover', style: GoogleFonts.inter(fontWeight: FontWeight.w700)),
+            ),
           ],
         );
       });
@@ -179,7 +225,10 @@ class _State extends State<SuggestedDistributionScreen> {
     final error = _validateMove(toMove: toMove, dest: dest);
     if (error != null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(error, style: GoogleFonts.inter(color: AppColors.superficiePorcelana)),
+        backgroundColor: AppColors.alertaLadrillo,
+      ));
       return;
     }
     for (final g in toMove) {
@@ -232,80 +281,193 @@ class _State extends State<SuggestedDistributionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    if (_error != null) return Scaffold(body: Center(child: Text(_error!)));
-    final dist = _distribution!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Distribución Sugerida')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildStatusBanner(),
-          if (dist.warning != null) Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(dist.warning!, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-          ),
-          const SizedBox(height: 12),
-
-          ...dist.assignments.map((a) {
-            return Card(
-              margin: const EdgeInsets.only(bottom: 12),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(a.tableName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    if (a.guests.isEmpty) const Text('Sin invitados asignados', style: TextStyle(color: Colors.grey))
-                    else ...a.guests.map((g) => InkWell(
-                      onTap: () => _openMoveDialog(g, a.tableName),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        child: Row(children: [
-                          const Icon(Icons.person, size: 18, color: Colors.black54),
-                          const SizedBox(width: 8),
-                          Expanded(child: Text(g)),
-                          const Icon(Icons.edit, size: 16, color: Colors.black38),
-                        ]),
-                      ),
-                    )),
-                  ],
-                ),
-              ),
-            );
-          }),
-
-          if (dist.unassignedGuests.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text('Sin asignar: ${dist.unassignedGuests.join(", ")}',
-                  style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
-            ),
-          const SizedBox(height: 16),
-          if (_explanationLoading) const Center(child: CircularProgressIndicator())
-          else if (_explanation != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_explanation!)),
-          const SizedBox(height: 16),
-          ElevatedButton.icon(onPressed: _generateExplanation, icon: const Icon(Icons.auto_awesome), label: const Text('Explicar distribución'), style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white)),
-          const SizedBox(height: 8),
-          ElevatedButton.icon(onPressed: _regenerate, icon: const Icon(Icons.refresh), label: const Text('Regenerar distribución'), style: ElevatedButton.styleFrom(backgroundColor: Colors.grey)),
-          const SizedBox(height: 8),
-          if (!_approved) ElevatedButton.icon(onPressed: _approve, icon: const Icon(Icons.check), label: const Text('Aprobar distribución'), style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white)),
-        ],
+      backgroundColor: AppColors.fondoAzulNoche,
+      appBar: AppBar(
+        title: const Text('Distribución Sugerida'),
       ),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator(color: AppColors.acentoBronce));
+    }
+    if (_error != null) {
+      return Center(
+        child: Text(_error!, style: GoogleFonts.inter(color: AppColors.alertaLadrillo)),
+      );
+    }
+    final dist = _distribution!;
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _buildStatusBanner(),
+        if (dist.warning != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Text(
+              dist.warning!,
+              style: GoogleFonts.inter(
+                color: AppColors.alertaLadrillo,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
+          ),
+        const SizedBox(height: 16),
+        ...dist.assignments.map((a) {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 14),
+            decoration: BoxDecoration(
+              color: AppColors.superficiePorcelana,
+              borderRadius: BorderRadius.circular(8),
+              border: const Border(
+                left: BorderSide(color: AppColors.acentoBronce, width: 4),
+              ),
+            ),
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  a.tableName,
+                  style: GoogleFonts.fraunces(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.fondoAzulNoche,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                if (a.guests.isEmpty)
+                  Text('Sin invitados asignados',
+                      style: GoogleFonts.inter(color: AppColors.textoSecundarioGris, fontSize: 13))
+                else
+                  ...a.guests.map((g) => InkWell(
+                        onTap: () => _openMoveDialog(g, a.tableName),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(children: [
+                            const Icon(Icons.person, size: 18, color: AppColors.fondoAzulNoche),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                g,
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  color: AppColors.fondoAzulNoche,
+                                ),
+                              ),
+                            ),
+                            Icon(Icons.edit, size: 16, color: AppColors.acentoBronce),
+                          ]),
+                        ),
+                      )),
+              ],
+            ),
+          );
+        }),
+        if (dist.unassignedGuests.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              'Sin asignar: ${dist.unassignedGuests.join(", ")}',
+              style: GoogleFonts.inter(
+                color: AppColors.alertaLadrillo,
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+            ),
+          ),
+        const SizedBox(height: 20),
+        if (_explanationLoading)
+          const Center(child: CircularProgressIndicator(color: AppColors.acentoBronce))
+        else if (_explanation != null)
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppColors.superficiePorcelana.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.acentoBronce, width: 1),
+            ),
+            child: Text(
+              _explanation!,
+              style: GoogleFonts.inter(
+                color: AppColors.superficiePorcelana,
+                fontSize: 13,
+                height: 1.5,
+              ),
+            ),
+          ),
+        const SizedBox(height: 16),
+        ElevatedButton.icon(
+          onPressed: _generateExplanation,
+          icon: const Icon(Icons.auto_awesome),
+          label: Text('Explicar distribución',
+              style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.acentoBronce,
+            foregroundColor: AppColors.fondoAzulNoche,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          ),
+        ),
+        const SizedBox(height: 10),
+        OutlinedButton.icon(
+          onPressed: _regenerate,
+          icon: const Icon(Icons.refresh),
+          label: Text('Regenerar distribución',
+              style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13)),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.acentoBronce,
+            side: const BorderSide(color: AppColors.acentoBronce),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          ),
+        ),
+        if (!_approved) ...[
+          const SizedBox(height: 10),
+          ElevatedButton.icon(
+            onPressed: _approve,
+            icon: const Icon(Icons.check),
+            label: Text('Aprobar distribución',
+                style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.exitoVerdeSalvia,
+              foregroundColor: AppColors.superficiePorcelana,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            ),
+          ),
+        ],
+        const SizedBox(height: 20),
+      ],
     );
   }
 
   Widget _buildStatusBanner() {
-    final color = _approved ? Colors.green : Colors.orange;
+    final color = _approved ? AppColors.exitoVerdeSalvia : AppColors.acentoBronce;
+    final icon = _approved ? Icons.check_circle : Icons.pending;
     final text = _approved ? 'Distribución aprobada' : 'Pendiente de aprobación';
     return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color, width: 1),
+      ),
       child: Row(children: [
-        Icon(_approved ? Icons.check_circle : Icons.pending, color: color),
-        const SizedBox(width: 8),
-        Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+        Icon(icon, color: color, size: 20),
+        const SizedBox(width: 10),
+        Text(
+          text,
+          style: GoogleFonts.inter(
+            color: color,
+            fontWeight: FontWeight.w700,
+            fontSize: 13,
+          ),
+        ),
       ]),
     );
   }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../core/constants/app_colors.dart';
 import '../../data/models/user_model.dart';
 import '../../data/services/auth_service.dart';
 
@@ -30,7 +32,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (!mounted) return;
       setState(() => _signingOut = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al cerrar sesión: $e')),
+        SnackBar(
+          content: Text('Error al cerrar sesión',
+              style: GoogleFonts.inter(color: AppColors.superficiePorcelana)),
+          backgroundColor: AppColors.alertaLadrillo,
+        ),
       );
     }
   }
@@ -38,19 +44,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Perfil')),
+      backgroundColor: AppColors.fondoAzulNoche,
+      appBar: AppBar(
+        title: const Text('Perfil'),
+      ),
       body: FutureBuilder<UserModel?>(
         future: _profileFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.acentoBronce),
+            );
           }
           final profile = snapshot.data;
           if (profile == null) {
-            return const Center(
+            return Center(
               child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Text('No se pudo cargar el perfil del usuario.'),
+                padding: const EdgeInsets.all(24),
+                child: Text(
+                  'No se pudo cargar el perfil del usuario.',
+                  style: GoogleFonts.inter(color: AppColors.textoSecundarioGris),
+                  textAlign: TextAlign.center,
+                ),
               ),
             );
           }
@@ -75,48 +90,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
               backgroundColor: Colors.black,
               child: Text(
                 initial,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: GoogleFonts.inter(
+                  color: AppColors.superficiePorcelana,
                   fontSize: 40,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             Text(
               profile.name,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: GoogleFonts.fraunces(
+                fontSize: 26,
+                fontWeight: FontWeight.w700,
+                color: AppColors.acentoBronce,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 6),
             Text(
               profile.email,
-              style: const TextStyle(fontSize: 14, color: Colors.black54),
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: AppColors.textoSecundarioGris,
+              ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.black12,
                 borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppColors.acentoBronce, width: 1),
               ),
               child: Text(
                 roleLabel,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.acentoBronce,
+                ),
               ),
             ),
-            const SizedBox(height: 40),
-            FilledButton.icon(
-              onPressed: _signingOut ? null : _handleSignOut,
-              icon: _signingOut
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.logout),
-              label: Text(_signingOut ? 'Cerrando sesión...' : 'Cerrar sesión'),
+            const SizedBox(height: 48),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _signingOut ? null : _handleSignOut,
+                icon: _signingOut
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.fondoAzulNoche,
+                        ),
+                      )
+                    : const Icon(Icons.logout),
+                label: Text(
+                  _signingOut ? 'Cerrando sesión...' : 'Cerrar sesión',
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.acentoBronce,
+                  foregroundColor: AppColors.fondoAzulNoche,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
