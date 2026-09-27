@@ -7,6 +7,7 @@ import 'screens/login/login_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/inventory/inventory_scanner_screen.dart';
 import 'screens/profile/profile_screen.dart';
+import 'widgets/logo_splash.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,12 +26,36 @@ class MyApp extends StatelessWidget {
       title: 'EventFlow AI',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const AuthGate(),
+      home: const SplashGate(),
       routes: {
         '/inventory': (_) => const InventoryScannerScreen(),
         '/profile': (_) => const ProfileScreen(),
       },
     );
+  }
+}
+
+/// Muestra el splash animado y, al terminar, pasa al AuthGate.
+class SplashGate extends StatefulWidget {
+  const SplashGate({super.key});
+
+  @override
+  State<SplashGate> createState() => _SplashGateState();
+}
+
+class _SplashGateState extends State<SplashGate> {
+  bool _splashDone = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_splashDone) {
+      return LogoSplash(
+        onFinished: () {
+          if (mounted) setState(() => _splashDone = true);
+        },
+      );
+    }
+    return const AuthGate();
   }
 }
 
