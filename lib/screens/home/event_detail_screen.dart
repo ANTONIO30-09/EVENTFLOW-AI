@@ -7,8 +7,8 @@ import '../../data/services/database_service.dart';
 import '../guests/guest_control_screen.dart';
 import '../compatibility/compatibility_rules_screen.dart';
 import '../distribution/suggested_distribution_screen.dart';
-import '../inventory/inventory_scanner_screen.dart';
-import '../profile/profile_screen.dart';
+
+import '../../widgets/neon_bottom_nav.dart';
 
 class EventDetailScreen extends StatelessWidget {
   final EventModel event;
@@ -19,7 +19,8 @@ class EventDetailScreen extends StatelessWidget {
     final databaseService = DatabaseService();
 
     return Scaffold(
-      backgroundColor: AppColors.fondoAzulNoche,
+      backgroundColor: Colors.transparent,
+      extendBody: true,
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,8 +52,12 @@ class EventDetailScreen extends StatelessWidget {
             builder: (context, snapshot) {
               final guests = snapshot.data ?? [];
               final llegaron = guests.where((g) => g.checkedIn).length;
-              final totalInvitados = event.guestCount > 0 ? event.guestCount : guests.length;
-              final checkInProgress = totalInvitados > 0 ? llegaron / totalInvitados : 0.0;
+              final totalInvitados = event.guestCount > 0
+                  ? event.guestCount
+                  : guests.length;
+              final checkInProgress = totalInvitados > 0
+                  ? llegaron / totalInvitados
+                  : 0.0;
 
               return SingleChildScrollView(
                 child: Column(
@@ -96,7 +101,10 @@ class EventDetailScreen extends StatelessWidget {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => GuestControlScreen(eventId: event.id)),
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  GuestControlScreen(eventId: event.id),
+                            ),
                           );
                         },
                         icon: const Icon(Icons.person_search),
@@ -105,7 +113,9 @@ class EventDetailScreen extends StatelessWidget {
                           backgroundColor: AppColors.acentoBronce,
                           foregroundColor: AppColors.fondoAzulNoche,
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
                         ),
                       ),
                     ),
@@ -117,14 +127,20 @@ class EventDetailScreen extends StatelessWidget {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => CompatibilityRulesScreen(eventId: event.id)),
+                                MaterialPageRoute(
+                                  builder: (_) => CompatibilityRulesScreen(
+                                    eventId: event.id,
+                                  ),
+                                ),
                               );
                             },
                             icon: const Icon(Icons.rule, size: 18),
                             label: const Text('Reglas'),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.acentoBronce,
-                              side: const BorderSide(color: AppColors.acentoBronce),
+                              side: const BorderSide(
+                                color: AppColors.acentoBronce,
+                              ),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                             ),
                           ),
@@ -135,14 +151,20 @@ class EventDetailScreen extends StatelessWidget {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => SuggestedDistributionScreen(eventId: event.id)),
+                                MaterialPageRoute(
+                                  builder: (_) => SuggestedDistributionScreen(
+                                    eventId: event.id,
+                                  ),
+                                ),
                               );
                             },
                             icon: const Icon(Icons.table_restaurant, size: 18),
                             label: const Text('Distribución'),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.acentoBronce,
-                              side: const BorderSide(color: AppColors.acentoBronce),
+                              side: const BorderSide(
+                                color: AppColors.acentoBronce,
+                              ),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                             ),
                           ),
@@ -192,11 +214,33 @@ class EventDetailScreen extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
-    const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const dias = [
+      'Lunes',
+      'Martes',
+      'Miércoles',
+      'Jueves',
+      'Viernes',
+      'Sábado',
+      'Domingo',
+    ];
+    const meses = [
+      'Ene',
+      'Feb',
+      'Mar',
+      'Abr',
+      'May',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dic',
+    ];
     final dia = dias[date.weekday - 1];
     final mes = meses[date.month - 1];
-    final hora = '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+    final hora =
+        '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
     return '$dia ${date.day} $mes - $hora';
   }
 
@@ -257,7 +301,9 @@ class EventDetailScreen extends StatelessWidget {
             child: LinearProgressIndicator(
               value: percentage,
               minHeight: 12,
-              backgroundColor: AppColors.superficiePorcelana.withValues(alpha: 0.15),
+              backgroundColor: AppColors.superficiePorcelana.withValues(
+                alpha: 0.15,
+              ),
               valueColor: AlwaysStoppedAnimation<Color>(color),
             ),
           ),
@@ -280,37 +326,6 @@ class EventDetailScreen extends StatelessWidget {
   }
 
   Widget _buildBottomNavigationBar(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: 0,
-      onTap: (index) {
-        if (index == 1) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const InventoryScannerScreen()),
-          );
-        } else if (index == 2) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ProfileScreen()),
-          );
-        } else if (index == 0) {
-          Navigator.popUntil(context, (route) => route.isFirst);
-        }
-      },
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.event),
-          label: 'Eventos',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.qr_code_scanner),
-          label: 'Inventario',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Perfil',
-        ),
-      ],
-    );
+    return const NeonBottomNav(currentIndex: 0);
   }
 }
