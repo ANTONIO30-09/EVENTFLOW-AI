@@ -4,7 +4,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/scan_item_model.dart';
 import '../../data/services/database_service.dart';
-import '../profile/profile_screen.dart';
+import '../../widgets/neon_bottom_nav.dart';
 
 class InventoryScannerScreen extends StatefulWidget {
   const InventoryScannerScreen({super.key});
@@ -461,27 +461,7 @@ class _InventoryScannerScreenState extends State<InventoryScannerScreen>
   }
 
   Widget _buildBottomNavigationBar(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: 1,
-      onTap: (index) {
-        if (index == 0) {
-          Navigator.popUntil(context, (route) => route.isFirst);
-        } else if (index == 2) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ProfileScreen()),
-          );
-        }
-      },
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.event), label: 'Eventos'),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.qr_code_scanner),
-          label: 'Inventario',
-        ),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
-      ],
-    );
+    return const NeonBottomNav(currentIndex: 1);
   }
 }
 

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/user_model.dart';
 import '../../data/services/auth_service.dart';
+import '../../widgets/neon_bottom_nav.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -33,8 +34,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() => _signingOut = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al cerrar sesión',
-              style: GoogleFonts.inter(color: AppColors.superficiePorcelana)),
+          content: Text(
+            'Error al cerrar sesión',
+            style: GoogleFonts.inter(color: AppColors.superficiePorcelana),
+          ),
           backgroundColor: AppColors.alertaLadrillo,
         ),
       );
@@ -45,9 +48,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.fondoAzulNoche,
-      appBar: AppBar(
-        title: const Text('Perfil'),
-      ),
+      appBar: AppBar(title: const Text('Perfil')),
+      bottomNavigationBar: const NeonBottomNav(currentIndex: 2),
       body: FutureBuilder<UserModel?>(
         future: _profileFuture,
         builder: (context, snapshot) {
@@ -63,7 +65,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.all(24),
                 child: Text(
                   'No se pudo cargar el perfil del usuario.',
-                  style: GoogleFonts.inter(color: AppColors.textoSecundarioGris),
+                  style: GoogleFonts.inter(
+                    color: AppColors.textoSecundarioGris,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -76,8 +80,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildProfileBody(UserModel profile) {
-    final roleLabel = profile.isOrganizador ? 'Organizador' : 'Personal de Campo';
-    final initial = profile.name.isNotEmpty ? profile.name[0].toUpperCase() : '?';
+    final roleLabel = profile.isOrganizador
+        ? 'Organizador'
+        : 'Personal de Campo';
+    final initial = profile.name.isNotEmpty
+        ? profile.name[0].toUpperCase()
+        : '?';
 
     return Center(
       child: Padding(
