@@ -133,6 +133,7 @@ class _InventoryScannerScreenState extends State<InventoryScannerScreen>
     return Scaffold(
       backgroundColor: AppColors.fondoAzulNoche,
       extendBodyBehindAppBar: true,
+      extendBody: true,
       appBar: AppBar(
         title: const Text('Escáner de Inventario'),
         backgroundColor: Colors.transparent,
@@ -167,6 +168,7 @@ class _InventoryScannerScreenState extends State<InventoryScannerScreen>
                 scanLinePosition: _scanLineController.value,
                 bronce: AppColors.acentoBronce,
                 overlay: AppColors.fondoAzulNoche,
+                reservedBottom: 110 + MediaQuery.of(context).padding.bottom,
               ),
               size: Size.infinite,
             );
@@ -473,17 +475,24 @@ class _ScannerOverlayPainter extends CustomPainter {
   final Color bronce;
   final Color overlay;
 
+  /// Alto reservado abajo (zona del bottom nav flotante). El overlay
+  /// oscuro NO se pinta acá para que el BackdropFilter del nav bluree
+  /// la cámara real.
+  final double reservedBottom;
+
   _ScannerOverlayPainter({
     required this.scanLinePosition,
     required this.bronce,
     required this.overlay,
+    required this.reservedBottom,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
+    final visibleHeight = size.height - reservedBottom;
     final cutoutSize = size.width * 0.58;
     final cutoutLeft = (size.width - cutoutSize) / 2;
-    final cutoutTop = size.height * 0.22;
+    final cutoutTop = visibleHeight * 0.22;
     final cutoutRect = Rect.fromLTWH(
       cutoutLeft,
       cutoutTop,
@@ -499,13 +508,20 @@ class _ScannerOverlayPainter extends CustomPainter {
       const Radius.circular(16),
     );
 
-    // Overlay oscuro con hueco (even-odd fill)
+    // Overlay oscuro con hueco (even-odd fill), SOLO en la zona superior.
     final overlayPath = Path()
-      ..addRect(Offset.zero & size)
+      ..addRect(Rect.fromLTWH(0, 0, size.width, visibleHeight))
       ..addRRect(cutoutRRect)
       ..fillType = PathFillType.evenOdd;
     canvas.drawPath(
       overlayPath,
+      Paint()..color = overlay.withValues(alpha: 0.7),
+    );
+
+    // Velo en la franja inferior (detrás del bottom nav glass),
+    // con la misma intensidad que la parte superior.
+    canvas.drawRect(
+      Rect.fromLTWH(0, visibleHeight, size.width, reservedBottom),
       Paint()..color = overlay.withValues(alpha: 0.7),
     );
 
