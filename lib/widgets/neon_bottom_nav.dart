@@ -28,7 +28,7 @@ class _NeonBottomNavState extends State<NeonBottomNav>
     super.initState();
     _waveController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 350),
     );
     _waveController.addStatusListener((status) {
       if (status == AnimationStatus.completed && mounted) {
@@ -49,7 +49,7 @@ class _NeonBottomNavState extends State<NeonBottomNav>
     setState(() => _waveIndex = index);
     _waveController.forward(from: 0);
 
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 320), () {
       if (!mounted) return;
       if (index == 0) {
         Navigator.popUntil(context, (route) => route.isFirst);
