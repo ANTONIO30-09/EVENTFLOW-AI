@@ -4,8 +4,8 @@ import '../../core/constants/app_colors.dart';
 import '../../data/models/guest_model.dart';
 import '../../data/services/database_service.dart';
 import '../check_in/check_in_success_screen.dart';
-import '../inventory/inventory_scanner_screen.dart';
-import '../profile/profile_screen.dart';
+
+import '../../widgets/neon_bottom_nav.dart';
 
 class GuestControlScreen extends StatefulWidget {
   final String eventId;
@@ -50,17 +50,18 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
     if (!mounted) return;
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => CheckInSuccessScreen(guest: updatedGuest)),
+      MaterialPageRoute(
+        builder: (_) => CheckInSuccessScreen(guest: updatedGuest),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.fondoAzulNoche,
-      appBar: AppBar(
-        title: const Text('Control de Invitados'),
-      ),
+      backgroundColor: Colors.transparent,
+      extendBody: true,
+      appBar: AppBar(title: const Text('Control de Invitados')),
       body: Column(
         children: [
           Padding(
@@ -73,14 +74,20 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: TextField(
                 controller: _searchController,
-                style: GoogleFonts.inter(color: AppColors.fondoAzulNoche, fontSize: 15),
+                style: GoogleFonts.inter(
+                  color: AppColors.fondoAzulNoche,
+                  fontSize: 15,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Buscar por nombre',
                   hintStyle: GoogleFonts.inter(
                     color: AppColors.textoSecundarioGris,
                     fontSize: 15,
                   ),
-                  prefixIcon: const Icon(Icons.search, color: AppColors.fondoAzulNoche),
+                  prefixIcon: const Icon(
+                    Icons.search,
+                    color: AppColors.fondoAzulNoche,
+                  ),
                   border: InputBorder.none,
                 ),
               ),
@@ -92,7 +99,9 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
-                    child: CircularProgressIndicator(color: AppColors.acentoBronce),
+                    child: CircularProgressIndicator(
+                      color: AppColors.acentoBronce,
+                    ),
                   );
                 }
 
@@ -108,8 +117,11 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
                 final guests = snapshot.data ?? [];
                 final query = _searchController.text.toLowerCase();
                 final filteredGuests = guests.where((guest) {
-                  final matchesSearch = guest.name.toLowerCase().contains(query);
-                  final matchesFilter = _filter == 'todos' ||
+                  final matchesSearch = guest.name.toLowerCase().contains(
+                    query,
+                  );
+                  final matchesFilter =
+                      _filter == 'todos' ||
                       (_filter == 'ingresados' && guest.checkedIn) ||
                       (_filter == 'pendientes' && !guest.checkedIn);
                   return matchesSearch && matchesFilter;
@@ -127,9 +139,15 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
                         children: [
                           _filterButton('Todos ($total)', 'todos'),
                           const SizedBox(width: 8),
-                          _filterButton('Ingresados ($ingresados)', 'ingresados'),
+                          _filterButton(
+                            'Ingresados ($ingresados)',
+                            'ingresados',
+                          ),
                           const SizedBox(width: 8),
-                          _filterButton('Pendientes ($pendientes)', 'pendientes'),
+                          _filterButton(
+                            'Pendientes ($pendientes)',
+                            'pendientes',
+                          ),
                         ],
                       ),
                     ),
@@ -146,7 +164,9 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
                               ),
                             )
                           : ListView.builder(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
                               itemCount: filteredGuests.length,
                               itemBuilder: (context, index) {
                                 final guest = filteredGuests[index];
@@ -156,7 +176,10 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
                                     color: AppColors.superficiePorcelana,
                                     borderRadius: BorderRadius.circular(8),
                                     border: const Border(
-                                      left: BorderSide(color: AppColors.acentoBronce, width: 4),
+                                      left: BorderSide(
+                                        color: AppColors.acentoBronce,
+                                        width: 4,
+                                      ),
                                     ),
                                   ),
                                   padding: const EdgeInsets.all(12),
@@ -164,7 +187,8 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
                                     children: [
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               guest.name,
@@ -180,7 +204,8 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
                                               style: GoogleFonts.inter(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w500,
-                                                color: AppColors.textoSecundarioGris,
+                                                color: AppColors
+                                                    .textoSecundarioGris,
                                               ),
                                             ),
                                           ],
@@ -193,17 +218,22 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
                                               size: 26,
                                             )
                                           : TextButton(
-                                              onPressed: () => _checkInGuest(guest),
+                                              onPressed: () =>
+                                                  _checkInGuest(guest),
                                               style: TextButton.styleFrom(
-                                                foregroundColor: AppColors.fondoAzulNoche,
-                                                backgroundColor: AppColors.acentoBronce,
+                                                foregroundColor:
+                                                    AppColors.fondoAzulNoche,
+                                                backgroundColor:
+                                                    AppColors.acentoBronce,
                                                 shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(20),
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
                                                 ),
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 14,
-                                                  vertical: 6,
-                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 14,
+                                                      vertical: 6,
+                                                    ),
                                               ),
                                               child: Text(
                                                 'Check-in',
@@ -236,10 +266,16 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
       child: OutlinedButton(
         onPressed: () => _updateFilter(filterValue),
         style: OutlinedButton.styleFrom(
-          backgroundColor: isSelected ? AppColors.acentoBronce : Colors.transparent,
-          foregroundColor: isSelected ? AppColors.fondoAzulNoche : AppColors.acentoBronce,
+          backgroundColor: isSelected
+              ? AppColors.acentoBronce
+              : Colors.transparent,
+          foregroundColor: isSelected
+              ? AppColors.fondoAzulNoche
+              : AppColors.acentoBronce,
           side: const BorderSide(color: AppColors.acentoBronce),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           padding: const EdgeInsets.symmetric(vertical: 12),
         ),
         child: Text(
@@ -251,37 +287,6 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
   }
 
   Widget _buildBottomNavigationBar(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: 0,
-      onTap: (index) {
-        if (index == 0) {
-          Navigator.popUntil(context, (route) => route.isFirst);
-        } else if (index == 1) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const InventoryScannerScreen()),
-          );
-        } else if (index == 2) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ProfileScreen()),
-          );
-        }
-      },
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.event),
-          label: 'Eventos',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.qr_code_scanner),
-          label: 'Inventario',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Perfil',
-        ),
-      ],
-    );
+    return const NeonBottomNav(currentIndex: 0);
   }
 }
