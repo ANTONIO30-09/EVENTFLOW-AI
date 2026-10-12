@@ -20,6 +20,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../widgets/glass_card.dart';
 import 'admin_mock_data.dart';
+import 'admin_events_page.dart';
 
 class AdminShell extends StatefulWidget {
   const AdminShell({super.key});
@@ -177,7 +178,7 @@ class _AdminShellState extends State<AdminShell> {
               children: [
                 _encabezado(modulo),
                 const SizedBox(height: 24),
-                _placeholderModulo(modulo),
+                _moduloContenido(),
               ],
             ),
           ),
@@ -215,6 +216,18 @@ class _AdminShellState extends State<AdminShell> {
   /// Placeholder temporal del módulo activo. En las etapas (b), (c) y (d)
   /// se reemplaza por las páginas reales (AdminEventsPage, AdminReportsPage,
   /// AdminUsersPage) recibiendo _events y _users por constructor.
+  Widget _moduloContenido() {
+    switch (_index) {
+      case 0:
+        return AdminEventsPage(
+          events: _events,
+          onChanged: () => setState(() {}),
+        );
+      default:
+        return _placeholderModulo(_modulos[_index]);
+    }
+  }
+
   Widget _placeholderModulo(_ModuloInfo modulo) {
     return GlassCard(
       padding: const EdgeInsets.all(28),
