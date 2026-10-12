@@ -10,7 +10,7 @@
 //
 // Este archivo NO importa Firebase ni servicios. Las listas de eventos y
 // usuarios viven en memoria (copias mutables de los mock) y se pasan a las
-// páginas de cada módulo cuando se implementen en las etapas siguientes.
+// páginas de cada módulo.
 
 import 'dart:ui';
 
@@ -21,6 +21,7 @@ import '../../core/constants/app_colors.dart';
 import '../../widgets/glass_card.dart';
 import 'admin_mock_data.dart';
 import 'admin_events_page.dart';
+import 'admin_reports_page.dart';
 
 class AdminShell extends StatefulWidget {
   const AdminShell({super.key});
@@ -34,7 +35,7 @@ class _AdminShellState extends State<AdminShell> {
   int _index = 0;
 
   /// Copias mutables de los mock. Los módulos hijos las reciben por
-  /// constructor y las mutan con setState (a partir de la etapa b).
+  /// constructor y las mutan con setState.
   // ignore: unused_field (se usa en etapa b)
   late List<AdminEvent> _events;
   // ignore: unused_field (se usa en etapa b)
@@ -77,13 +78,6 @@ class _AdminShellState extends State<AdminShell> {
     setState(() => _index = i);
   }
 
-  void _volverALaApp() {
-    // La app abre el panel con Navigator.pushNamed(context, '/admin'), así
-    // que pop regresa al usuario a la pantalla anterior sin reproducir el
-    // splash de '/' (que es un SplashGate).
-    Navigator.pop(context);
-  }
-
   // -------------------------------------------------------------------------
   // Build
   // -------------------------------------------------------------------------
@@ -106,7 +100,6 @@ class _AdminShellState extends State<AdminShell> {
                 Navigator.pop(context); // cierra el drawer
                 _seleccionarModulo(i);
               },
-              onVolver: _volverALaApp,
             ),
           );
         },
@@ -123,7 +116,6 @@ class _AdminShellState extends State<AdminShell> {
                     indexActivo: _index,
                     modulos: _modulos,
                     onSeleccionar: _seleccionarModulo,
-                    onVolver: _volverALaApp,
                   ),
                 ),
                 Expanded(child: _contenido()),
@@ -213,9 +205,7 @@ class _AdminShellState extends State<AdminShell> {
     );
   }
 
-  /// Placeholder temporal del módulo activo. En las etapas (b), (c) y (d)
-  /// se reemplaza por las páginas reales (AdminEventsPage, AdminReportsPage,
-  /// AdminUsersPage) recibiendo _events y _users por constructor.
+  /// Despacha el contenido del módulo activo.
   Widget _moduloContenido() {
     switch (_index) {
       case 0:
@@ -223,11 +213,14 @@ class _AdminShellState extends State<AdminShell> {
           events: _events,
           onChanged: () => setState(() {}),
         );
+      case 1:
+        return AdminReportsPage(events: _events);
       default:
         return _placeholderModulo(_modulos[_index]);
     }
   }
 
+  /// Placeholder temporal para los módulos aún no implementados.
   Widget _placeholderModulo(_ModuloInfo modulo) {
     return GlassCard(
       padding: const EdgeInsets.all(28),
@@ -284,13 +277,11 @@ class _Sidebar extends StatelessWidget {
     required this.indexActivo,
     required this.modulos,
     required this.onSeleccionar,
-    required this.onVolver,
   });
 
   final int indexActivo;
   final List<_ModuloInfo> modulos;
   final ValueChanged<int> onSeleccionar;
-  final VoidCallback onVolver;
 
   @override
   Widget build(BuildContext context) {
@@ -330,8 +321,6 @@ class _Sidebar extends StatelessWidget {
                       ),
                     );
                   }),
-                  const Spacer(),
-                  _botonVolver(),
                 ],
               ),
             ),
@@ -364,27 +353,6 @@ class _Sidebar extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _botonVolver() {
-    return TextButton.icon(
-      onPressed: onVolver,
-      style: TextButton.styleFrom(
-        foregroundColor: AppColors.superficiePorcelana.withValues(alpha: 0.85),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-          side: BorderSide(
-            color: AppColors.superficiePorcelana.withValues(alpha: 0.22),
-          ),
-        ),
-      ),
-      icon: const Icon(Icons.arrow_back_ios_new, size: 14),
-      label: Text(
-        'Volver a la app',
-        style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500),
-      ),
     );
   }
 }
