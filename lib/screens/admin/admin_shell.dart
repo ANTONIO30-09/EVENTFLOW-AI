@@ -22,6 +22,7 @@ import '../../widgets/glass_card.dart';
 import 'admin_mock_data.dart';
 import 'admin_events_page.dart';
 import 'admin_reports_page.dart';
+import 'admin_users_page.dart';
 
 class AdminShell extends StatefulWidget {
   const AdminShell({super.key});
@@ -36,9 +37,7 @@ class _AdminShellState extends State<AdminShell> {
 
   /// Copias mutables de los mock. Los módulos hijos las reciben por
   /// constructor y las mutan con setState.
-  // ignore: unused_field (se usa en etapa b)
   late List<AdminEvent> _events;
-  // ignore: unused_field (se usa en etapa b)
   late List<AdminUser> _users;
 
   @override
@@ -215,6 +214,11 @@ class _AdminShellState extends State<AdminShell> {
         );
       case 1:
         return AdminReportsPage(events: _events);
+      case 2:
+        return AdminUsersPage(
+          users: _users,
+          onChanged: () => setState(() {}),
+        );
       default:
         return _placeholderModulo(_modulos[_index]);
     }
