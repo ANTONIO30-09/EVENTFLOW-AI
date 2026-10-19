@@ -8,12 +8,11 @@ import 'screens/home/home_screen.dart';
 import 'screens/inventory/inventory_scanner_screen.dart';
 import 'screens/profile/profile_screen.dart';
 import 'widgets/logo_splash.dart';
+import 'widgets/animated_bokeh_background.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -26,6 +25,15 @@ class MyApp extends StatelessWidget {
       title: 'EventFlow AI',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+      // Bokeh detrás de TODAS las rutas: nunca se reinicia entre pantallas.
+      builder: (context, child) {
+        return Stack(
+          children: [
+            const Positioned.fill(child: AnimatedBokehBackground()),
+            if (child != null) Positioned.fill(child: child),
+          ],
+        );
+      },
       home: const SplashGate(),
       routes: {
         '/inventory': (_) => const InventoryScannerScreen(),
@@ -35,7 +43,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// Muestra el splash animado y, al terminar, pasa al AuthGate.
+/// Muestra el splash animado y, al terminar, reemplaza la ruta por AuthGate
+/// con una transición suave (fade + Hero del logo).
 class SplashGate extends StatefulWidget {
   const SplashGate({super.key});
 
@@ -44,24 +53,27 @@ class SplashGate extends StatefulWidget {
 }
 
 class _SplashGateState extends State<SplashGate> {
-  bool _splashDone = false;
+  void _handleSplashFinished() {
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 300),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const AuthGate(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (!_splashDone) {
-      return LogoSplash(
-        onFinished: () {
-          if (mounted) setState(() => _splashDone = true);
-        },
-      );
-    }
-    return const AuthGate();
+    return LogoSplash(onFinished: _handleSplashFinished);
   }
 }
 
 /// Decide qué pantalla mostrar según si hay sesión activa o no.
-/// Escucha authStateChanges: cuando el login tiene éxito, cambia
-/// solo a HomeScreen, sin necesidad de navegación manual.
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 
@@ -72,7 +84,10 @@ class AuthGate extends StatelessWidget {
       stream: authService.authStateChanges,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
         if (snapshot.hasData) {
           return const HomeScreen();

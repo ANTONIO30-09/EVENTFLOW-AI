@@ -32,18 +32,20 @@ class _LogoSplashState extends State<LogoSplash> with TickerProviderStateMixin {
 
     final rng = math.Random(7);
     for (int i = 0; i < 60; i++) {
-      _particles.add(_ConfettiParticle(
-        xFactor: rng.nextDouble(),
-        startDelay: rng.nextDouble() * 0.4,
-        speed: 0.7 + rng.nextDouble() * 0.6,
-        size: 2.5 + rng.nextDouble() * 4.0,
-        swayAmp: 10 + rng.nextDouble() * 30,
-        swayFreq: 1.0 + rng.nextDouble() * 2.0,
-        rotation: rng.nextDouble() * math.pi * 2,
-        rotationSpeed: (rng.nextDouble() - 0.5) * 6,
-        isCircle: rng.nextBool(),
-        opacityBase: 0.5 + rng.nextDouble() * 0.5,
-      ));
+      _particles.add(
+        _ConfettiParticle(
+          xFactor: rng.nextDouble(),
+          startDelay: rng.nextDouble() * 0.4,
+          speed: 0.7 + rng.nextDouble() * 0.6,
+          size: 2.5 + rng.nextDouble() * 4.0,
+          swayAmp: 10 + rng.nextDouble() * 30,
+          swayFreq: 1.0 + rng.nextDouble() * 2.0,
+          rotation: rng.nextDouble() * math.pi * 2,
+          rotationSpeed: (rng.nextDouble() - 0.5) * 6,
+          isCircle: rng.nextBool(),
+          opacityBase: 0.5 + rng.nextDouble() * 0.5,
+        ),
+      );
     }
 
     _logoController = AnimationController(
@@ -58,9 +60,10 @@ class _LogoSplashState extends State<LogoSplash> with TickerProviderStateMixin {
     _logoScale = Tween<double>(begin: 0.7, end: 1.0).animate(
       CurvedAnimation(parent: _logoController, curve: Curves.easeOutCubic),
     );
-    _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _logoController, curve: Curves.easeOut),
-    );
+    _logoOpacity = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _logoController, curve: Curves.easeOut));
 
     _runSequence();
   }
@@ -83,7 +86,7 @@ class _LogoSplashState extends State<LogoSplash> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.fondoAzulNoche,
+      backgroundColor: Colors.transparent,
       body: Stack(
         children: [
           Positioned.fill(
@@ -113,7 +116,10 @@ class _LogoSplashState extends State<LogoSplash> with TickerProviderStateMixin {
                       children: [
                         // Capa de glow: misma imagen, difuminada y coloreada en bronce.
                         ImageFiltered(
-                          imageFilter: ui.ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                          imageFilter: ui.ImageFilter.blur(
+                            sigmaX: 18,
+                            sigmaY: 18,
+                          ),
                           child: ColorFiltered(
                             colorFilter: ColorFilter.mode(
                               AppColors.acentoBronce.withValues(alpha: 0.65),
@@ -123,19 +129,24 @@ class _LogoSplashState extends State<LogoSplash> with TickerProviderStateMixin {
                               'assets/images/logo.png',
                               height: 160,
                               errorBuilder: (context, error, stackTrace) {
-                                return Icon(Icons.blur_on,
-                                    size: 120, color: AppColors.acentoBronce);
+                                return Icon(
+                                  Icons.blur_on,
+                                  size: 120,
+                                  color: AppColors.acentoBronce,
+                                );
                               },
                             ),
                           ),
                         ),
-                        // Logo original encima.
                         Image.asset(
                           'assets/images/logo.png',
                           height: 160,
                           errorBuilder: (context, error, stackTrace) {
-                            return Icon(Icons.blur_on,
-                                size: 120, color: AppColors.acentoBronce);
+                            return Icon(
+                              Icons.blur_on,
+                              size: 120,
+                              color: AppColors.acentoBronce,
+                            );
                           },
                         ),
                       ],
@@ -199,7 +210,8 @@ class _ConfettiPainter extends CustomPainter {
       if (y > size.height + 30) continue;
 
       final baseX = p.xFactor * size.width;
-      final sway = math.sin(localProgress * p.swayFreq * math.pi * 2) * p.swayAmp;
+      final sway =
+          math.sin(localProgress * p.swayFreq * math.pi * 2) * p.swayAmp;
       final x = baseX + sway;
 
       double opacity;
@@ -224,7 +236,10 @@ class _ConfettiPainter extends CustomPainter {
         canvas.rotate(p.rotation + localProgress * p.rotationSpeed);
         canvas.drawRect(
           Rect.fromCenter(
-              center: Offset.zero, width: p.size * 0.6, height: p.size * 1.6),
+            center: Offset.zero,
+            width: p.size * 0.6,
+            height: p.size * 1.6,
+          ),
           paint,
         );
         canvas.restore();

@@ -46,3 +46,6 @@ app.*.map.json
 
 # Firebase local cache
 .firebase/
+
+# Binarios descargados para pruebas locales (.deb, instaladores)
+*.deb

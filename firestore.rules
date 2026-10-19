@@ -1,0 +1,91 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================================
+    // Helpers
+    // ============================================================
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Lee el rol del perfil del usuario actual.
+    function isOrganizador() {
+      return isSignedIn()
+        && get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.role == 'organizador';
+    }
+
+    // ============================================================
+    // profiles
+    // ============================================================
+    match /profiles/{uid} {
+      allow read: if isSignedIn();
+
+      allow update: if isSignedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role == resource.data.role;
+
+      allow create: if isSignedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role == 'staff';
+
+      allow delete: if false;
+    }
+
+    // ============================================================
+    // events
+    // ============================================================
+    match /events/{eventId} {
+      allow read: if isSignedIn();
+      allow write: if isOrganizador();
+    }
+
+    // ============================================================
+    // guests
+    //
+    // La asignación mesa↔invitado vive en guests.{id}.tableNumber.
+    // Staff puede hacer update (check-in, HU-04) siempre que no
+    // toque tableNumber.
+    //
+    // OJO (nota de fragilidad): si checkInGuest() alguna vez se
+    // modifica para cambiar tableNumber a un valor distinto al
+    // original, esta regla bloqueará el check-in de staff en
+    // silencio, sin error obvio en pantalla. Firestore evalúa
+    // diff().affectedKeys() por VALOR, no por presencia en el
+    // payload — hoy checkInGuest incluye tableNumber en el update
+    // pero con el mismo valor, así que no dispara el bloqueo.
+    // ============================================================
+    match /guests/{guestId} {
+      allow read: if isSignedIn();
+      allow create, delete: if isOrganizador();
+      allow update: if isOrganizador()
+        || (isSignedIn()
+            && !request.resource.data.diff(resource.data)
+                 .affectedKeys().hasAny(['tableNumber']));
+    }
+
+    // ============================================================
+    // seating_tables
+    // ============================================================
+    match /seating_tables/{tableId} {
+      allow read: if isSignedIn();
+      allow write: if isOrganizador();
+    }
+
+    // ============================================================
+    // compatibility_rules
+    // ============================================================
+    match /compatibility_rules/{ruleId} {
+      allow read: if isSignedIn();
+      allow write: if isOrganizador();
+    }
+
+    // ============================================================
+    // scan_items — inventario QR (staff escanea)
+    // ============================================================
+    match /scan_items/{itemId} {
+      allow read, write: if isSignedIn();
+    }
+  }
+}
