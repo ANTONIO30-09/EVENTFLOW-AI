@@ -10,6 +10,7 @@ import '../../data/services/ai_explanation_service.dart';
 import '../../data/services/ai_seating_service.dart';
 import '../../data/models/user_model.dart';
 import '../../data/services/auth_service.dart';
+import '../../widgets/glass_card.dart';
 
 class SuggestedDistributionScreen extends StatefulWidget {
   final String eventId;
@@ -552,18 +553,18 @@ class _SuggestedDistributionScreenState
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFA63D40).withValues(alpha: 0.15),
+        color: AppColors.alertaLadrillo.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Row(
-        children: const [
-          Icon(Icons.lock_outline, color: Color(0xFFA63D40)),
+      child: const Row(
+        children: [
+          Icon(Icons.lock_outline, color: AppColors.alertaLadrillo),
           SizedBox(width: 8),
           Expanded(
             child: Text(
               'Vista de solo lectura — solo organizadores pueden modificar la distribución.',
               style: TextStyle(
-                color: Color(0xFFA63D40),
+                color: AppColors.alertaLadrillo,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -576,9 +577,42 @@ class _SuggestedDistributionScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.fondoAzulNoche,
-      appBar: AppBar(title: const Text('Distribución Sugerida')),
-      body: _buildBody(),
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: AppColors.superficiePorcelana,
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Distribución Sugerida',
+                      style: GoogleFonts.fraunces(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.acentoBronce,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: _buildBody(),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -616,72 +650,71 @@ class _SuggestedDistributionScreenState
           ),
         const SizedBox(height: 16),
         ...dist.assignments.map((a) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 14),
-            decoration: BoxDecoration(
-              color: AppColors.superficiePorcelana,
-              borderRadius: BorderRadius.circular(8),
-              border: const Border(
-                left: BorderSide(color: AppColors.acentoBronce, width: 4),
-              ),
-            ),
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  a.tableName,
-                  style: GoogleFonts.fraunces(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.fondoAzulNoche,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                if (a.guests.isEmpty)
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 14),
+            child: GlassCard(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    'Sin invitados asignados',
-                    style: GoogleFonts.inter(
-                      color: AppColors.textoSecundarioGris,
-                      fontSize: 13,
+                    a.tableName,
+                    style: GoogleFonts.fraunces(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.acentoBronce,
                     ),
-                  )
-                else
-                  ...a.guests.map(
-                    (g) => InkWell(
-                      onTap: _puedeEditar
-                          ? () => _openMoveDialog(g, a.tableName)
-                          : null,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.person,
-                              size: 18,
-                              color: AppColors.fondoAzulNoche,
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                g,
-                                style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  color: AppColors.fondoAzulNoche,
+                  ),
+                  const SizedBox(height: 12),
+                  if (a.guests.isEmpty)
+                    Text(
+                      'Sin invitados asignados',
+                      style: GoogleFonts.inter(
+                        color: AppColors.superficiePorcelana.withValues(
+                          alpha: 0.6,
+                        ),
+                        fontSize: 13,
+                      ),
+                    )
+                  else
+                    ...a.guests.map(
+                      (g) => InkWell(
+                        onTap: _puedeEditar
+                            ? () => _openMoveDialog(g, a.tableName)
+                            : null,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.person,
+                                size: 18,
+                                color: AppColors.superficiePorcelana
+                                    .withValues(alpha: 0.8),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  g,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    color: AppColors.superficiePorcelana,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Icon(
-                              Icons.edit,
-                              size: 16,
-                              color: AppColors.acentoBronce,
-                            ),
-                          ],
+                              if (_puedeEditar)
+                                const Icon(
+                                  Icons.edit,
+                                  size: 16,
+                                  color: AppColors.acentoBronce,
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           );
         }),
