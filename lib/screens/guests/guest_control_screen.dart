@@ -5,8 +5,6 @@ import '../../data/models/guest_model.dart';
 import '../../data/services/database_service.dart';
 import '../check_in/check_in_success_screen.dart';
 
-import '../../widgets/neon_bottom_nav.dart';
-
 class GuestControlScreen extends StatefulWidget {
   final String eventId;
   const GuestControlScreen({super.key, required this.eventId});
@@ -60,203 +58,252 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      extendBody: true,
-      appBar: AppBar(title: const Text('Control de Invitados')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.superficiePorcelana,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: TextField(
-                controller: _searchController,
-                style: GoogleFonts.inter(
-                  color: AppColors.fondoAzulNoche,
-                  fontSize: 15,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'Buscar por nombre',
-                  hintStyle: GoogleFonts.inter(
-                    color: AppColors.textoSecundarioGris,
-                    fontSize: 15,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: AppColors.superficiePorcelana,
+                    ),
+                    onPressed: () => Navigator.pop(context),
                   ),
-                  prefixIcon: const Icon(
-                    Icons.search,
-                    color: AppColors.fondoAzulNoche,
-                  ),
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: StreamBuilder<List<GuestModel>>(
-              stream: _guestsStream,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(
+                  const SizedBox(width: 8),
+                  Text(
+                    'Control de Invitados',
+                    style: GoogleFonts.fraunces(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
                       color: AppColors.acentoBronce,
                     ),
-                  );
-                }
-
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text(
-                      'Error al cargar invitados',
-                      style: GoogleFonts.inter(color: AppColors.alertaLadrillo),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.superficiePorcelana.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(
+                    color: AppColors.superficiePorcelana.withValues(alpha: 0.15),
+                  ),
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  textAlignVertical: TextAlignVertical.center,
+                  style: GoogleFonts.inter(
+                    color: AppColors.superficiePorcelana,
+                    fontSize: 15,
+                  ),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                    hintText: 'Buscar por nombre',
+                    hintStyle: GoogleFonts.inter(
+                      color: AppColors.superficiePorcelana.withValues(alpha: 0.6),
+                      fontSize: 15,
                     ),
-                  );
-                }
-
-                final guests = snapshot.data ?? [];
-                final query = _searchController.text.toLowerCase();
-                final filteredGuests = guests.where((guest) {
-                  final matchesSearch = guest.name.toLowerCase().contains(
-                    query,
-                  );
-                  final matchesFilter =
-                      _filter == 'todos' ||
-                      (_filter == 'ingresados' && guest.checkedIn) ||
-                      (_filter == 'pendientes' && !guest.checkedIn);
-                  return matchesSearch && matchesFilter;
-                }).toList();
-
-                final total = guests.length;
-                final ingresados = guests.where((g) => g.checkedIn).length;
-                final pendientes = total - ingresados;
-
-                return Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          _filterButton('Todos ($total)', 'todos'),
-                          const SizedBox(width: 8),
-                          _filterButton(
-                            'Ingresados ($ingresados)',
-                            'ingresados',
-                          ),
-                          const SizedBox(width: 8),
-                          _filterButton(
-                            'Pendientes ($pendientes)',
-                            'pendientes',
-                          ),
-                        ],
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: AppColors.superficiePorcelana.withValues(alpha: 0.6),
+                    ),
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: StreamBuilder<List<GuestModel>>(
+                stream: _guestsStream,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.acentoBronce,
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child: filteredGuests.isEmpty
-                          ? Center(
-                              child: Text(
-                                'No hay invitados para los filtros seleccionados.',
-                                style: GoogleFonts.inter(
-                                  color: AppColors.textoSecundarioGris,
-                                  fontSize: 14,
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        'Error al cargar invitados',
+                        style: GoogleFonts.inter(
+                          color: AppColors.alertaLadrillo,
+                        ),
+                      ),
+                    );
+                  }
+
+                  final guests = snapshot.data ?? [];
+                  final query = _searchController.text.toLowerCase();
+                  final filteredGuests = guests.where((guest) {
+                    final matchesSearch = guest.name.toLowerCase().contains(
+                      query,
+                    );
+                    final matchesFilter =
+                        _filter == 'todos' ||
+                        (_filter == 'ingresados' && guest.checkedIn) ||
+                        (_filter == 'pendientes' && !guest.checkedIn);
+                    return matchesSearch && matchesFilter;
+                  }).toList();
+
+                  final total = guests.length;
+                  final ingresados = guests.where((g) => g.checkedIn).length;
+                  final pendientes = total - ingresados;
+
+                  return Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          children: [
+                            _filterButton('Todos ($total)', 'todos'),
+                            const SizedBox(width: 8),
+                            _filterButton(
+                              'Ingresados ($ingresados)',
+                              'ingresados',
+                            ),
+                            const SizedBox(width: 8),
+                            _filterButton(
+                              'Pendientes ($pendientes)',
+                              'pendientes',
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: filteredGuests.isEmpty
+                            ? Center(
+                                child: Text(
+                                  'No hay invitados para los filtros seleccionados.',
+                                  style: GoogleFonts.inter(
+                                    color: AppColors.superficiePorcelana
+                                        .withValues(alpha: 0.6),
+                                    fontSize: 14,
+                                  ),
                                 ),
-                              ),
-                            )
-                          : ListView.builder(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              itemCount: filteredGuests.length,
-                              itemBuilder: (context, index) {
-                                final guest = filteredGuests[index];
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.superficiePorcelana,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: const Border(
-                                      left: BorderSide(
-                                        color: AppColors.acentoBronce,
-                                        width: 4,
+                              )
+                            : ListView.builder(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                itemCount: filteredGuests.length,
+                                itemBuilder: (context, index) {
+                                  final guest = filteredGuests[index];
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.superficiePorcelana
+                                          .withValues(alpha: 0.08),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: AppColors.superficiePorcelana
+                                            .withValues(alpha: 0.15),
                                       ),
                                     ),
-                                  ),
-                                  padding: const EdgeInsets.all(12),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              guest.name,
-                                              style: GoogleFonts.inter(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w700,
-                                                color: AppColors.fondoAzulNoche,
-                                              ),
+                                    padding: const EdgeInsets.all(16),
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          backgroundColor: AppColors
+                                              .acentoBronce
+                                              .withValues(alpha: 0.2),
+                                          child: Text(
+                                            guest.name.isNotEmpty
+                                                ? guest.name[0].toUpperCase()
+                                                : '?',
+                                            style: GoogleFonts.fraunces(
+                                              color: AppColors.acentoBronce,
+                                              fontWeight: FontWeight.bold,
                                             ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              '${guest.tableNumber} • ${guest.familyGroup} • +${guest.companions} acompañante${guest.companions != 1 ? 's' : ''}',
-                                              style: GoogleFonts.inter(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w500,
-                                                color: AppColors
-                                                    .textoSecundarioGris,
-                                              ),
-                                            ),
-                                          ],
+                                          ),
                                         ),
-                                      ),
-                                      guest.checkedIn
-                                          ? const Icon(
-                                              Icons.check_circle,
-                                              color: AppColors.exitoVerdeSalvia,
-                                              size: 26,
-                                            )
-                                          : TextButton(
-                                              onPressed: () =>
-                                                  _checkInGuest(guest),
-                                              style: TextButton.styleFrom(
-                                                foregroundColor:
-                                                    AppColors.fondoAzulNoche,
-                                                backgroundColor:
-                                                    AppColors.acentoBronce,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(20),
-                                                ),
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 14,
-                                                      vertical: 6,
-                                                    ),
-                                              ),
-                                              child: Text(
-                                                'Check-in',
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                guest.name,
                                                 style: GoogleFonts.inter(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 13,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: AppColors
+                                                      .superficiePorcelana,
                                                 ),
                                               ),
-                                            ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-                  ],
-                );
-              },
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                '${guest.tableNumber} • ${guest.familyGroup} • +${guest.companions} acompañante${guest.companions != 1 ? 's' : ''}',
+                                                style: GoogleFonts.inter(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: AppColors
+                                                      .superficiePorcelana
+                                                      .withValues(alpha: 0.6),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        guest.checkedIn
+                                            ? const Icon(
+                                                Icons.check_circle,
+                                                color:
+                                                    AppColors.exitoVerdeSalvia,
+                                                size: 26,
+                                              )
+                                            : TextButton(
+                                                onPressed: () =>
+                                                    _checkInGuest(guest),
+                                                style: TextButton.styleFrom(
+                                                  foregroundColor:
+                                                      AppColors.fondoAzulNoche,
+                                                  backgroundColor:
+                                                      AppColors.acentoBronce,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          20,
+                                                        ),
+                                                  ),
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 14,
+                                                        vertical: 6,
+                                                      ),
+                                                ),
+                                                child: Text(
+                                                  'Check-in',
+                                                  style: GoogleFonts.inter(
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 13,
+                                                  ),
+                                                ),
+                                              ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
     );
   }
 
@@ -284,9 +331,5 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
         ),
       ),
     );
-  }
-
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return const NeonBottomNav(currentIndex: 0);
   }
 }
