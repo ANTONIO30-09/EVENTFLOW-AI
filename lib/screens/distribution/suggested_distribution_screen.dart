@@ -10,7 +10,6 @@ import '../../data/services/ai_explanation_service.dart';
 import '../../data/services/ai_seating_service.dart';
 import '../../data/models/user_model.dart';
 import '../../data/services/auth_service.dart';
-import '../../widgets/glass_card.dart';
 import '../../widgets/custom_back_button.dart';
 
 class SuggestedDistributionScreen extends StatefulWidget {
@@ -647,8 +646,15 @@ class _SuggestedDistributionScreenState
         ...dist.assignments.map((a) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 14),
-            child: GlassCard(
+            child: Container(
               padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.superficiePorcelana.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.superficiePorcelana.withValues(alpha: 0.15),
+                ),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

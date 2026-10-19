@@ -7,19 +7,20 @@ class CustomBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed ?? () => Navigator.pop(context),
-      child: Container(
-        width: 48,
-        height: 48,
-        decoration: const BoxDecoration(
-          color: AppColors.acentoBronce,
-          shape: BoxShape.circle,
-        ),
-        child: const Icon(
-          Icons.arrow_back,
-          color: AppColors.fondoAzulNoche,
-          size: 24,
+    return Material(
+      color: AppColors.acentoBronce,
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: onPressed ?? () => Navigator.of(context).maybePop(),
+        customBorder: const CircleBorder(),
+        child: const SizedBox(
+          width: 64,
+          height: 64,
+          child: Icon(
+            Icons.arrow_back,
+            color: AppColors.fondoAzulNoche,
+            size: 28,
+          ),
         ),
       ),
     );
