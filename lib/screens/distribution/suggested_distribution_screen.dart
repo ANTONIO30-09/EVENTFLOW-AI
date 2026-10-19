@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/guest_model.dart';
+import '../../data/models/event_model.dart';
 import '../../data/models/seating_table_model.dart';
 import '../../data/models/compatibility_rule_model.dart';
 import '../../data/services/database_service.dart';
@@ -55,12 +56,18 @@ class _SuggestedDistributionScreenState
       _explanation = null;
     });
     try {
-      final guests = await _databaseService.fetchGuestsForEvent(widget.eventId);
-      final tables = await _databaseService.fetchTablesForEvent(widget.eventId);
-      final rules = await _databaseService.fetchCompatibilityRulesForEvent(
-        widget.eventId,
-      );
-      final event = await _databaseService.fetchEventById(widget.eventId);
+      final results = await Future.wait([
+        _databaseService.fetchGuestsForEvent(widget.eventId),
+        _databaseService.fetchTablesForEvent(widget.eventId),
+        _databaseService.fetchCompatibilityRulesForEvent(widget.eventId),
+        _databaseService.fetchEventById(widget.eventId),
+      ]);
+
+      final guests = results[0] as List<GuestModel>;
+      final tables = results[1] as List<SeatingTable>;
+      final rules = results[2] as List<CompatibilityRule>;
+      final event = results[3] as EventModel?;
+      
       final approved = event?.distributionApproved ?? false;
       final eventSource = event?.distributionSource ?? '';
 
