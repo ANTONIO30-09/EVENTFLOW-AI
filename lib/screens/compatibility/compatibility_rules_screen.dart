@@ -5,6 +5,7 @@ import '../../data/models/compatibility_rule_model.dart';
 import '../../data/models/guest_model.dart';
 import '../../data/services/database_service.dart';
 import '../../widgets/glass_card.dart';
+import '../../widgets/custom_back_button.dart';
 
 class CompatibilityRulesScreen extends StatefulWidget {
   final String eventId;
@@ -104,13 +105,7 @@ class _CompatibilityRulesScreenState extends State<CompatibilityRulesScreen> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: AppColors.superficiePorcelana,
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
+                  const CustomBackButton(),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(

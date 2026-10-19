@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import '../../data/models/user_model.dart';
 import '../../data/services/auth_service.dart';
 import '../../widgets/glass_card.dart';
+import '../../widgets/custom_back_button.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -55,13 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: AppColors.superficiePorcelana,
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
+                  const CustomBackButton(),
                   const SizedBox(width: 8),
                   Text(
                     'Perfil',

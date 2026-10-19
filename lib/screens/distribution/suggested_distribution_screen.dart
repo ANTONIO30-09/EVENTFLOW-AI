@@ -11,6 +11,7 @@ import '../../data/services/ai_seating_service.dart';
 import '../../data/models/user_model.dart';
 import '../../data/services/auth_service.dart';
 import '../../widgets/glass_card.dart';
+import '../../widgets/custom_back_button.dart';
 
 class SuggestedDistributionScreen extends StatefulWidget {
   final String eventId;
@@ -585,13 +586,7 @@ class _SuggestedDistributionScreenState
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: AppColors.superficiePorcelana,
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
+                  const CustomBackButton(),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(

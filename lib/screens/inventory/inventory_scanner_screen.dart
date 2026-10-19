@@ -5,6 +5,8 @@ import '../../core/constants/app_colors.dart';
 import '../../data/models/scan_item_model.dart';
 import '../../data/services/database_service.dart';
 import '../../widgets/neon_bottom_nav.dart';
+import '../../widgets/glass_card.dart';
+import '../../widgets/custom_back_button.dart';
 
 class InventoryScannerScreen extends StatefulWidget {
   const InventoryScannerScreen({super.key});
@@ -131,15 +133,8 @@ class _InventoryScannerScreenState extends State<InventoryScannerScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.fondoAzulNoche,
-      extendBodyBehindAppBar: true,
+      backgroundColor: _showManualEntry ? Colors.transparent : AppColors.fondoAzulNoche,
       extendBody: true,
-      appBar: AppBar(
-        title: const Text('Escáner de Inventario'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        foregroundColor: AppColors.superficiePorcelana,
-      ),
       body: _showManualEntry ? _buildManualEntryView() : _buildScannerView(),
       bottomNavigationBar: _buildBottomNavigationBar(context),
     );
@@ -174,8 +169,28 @@ class _InventoryScannerScreenState extends State<InventoryScannerScreen>
             );
           },
         ),
+        // Header flotante
         Positioned(
-          top: MediaQuery.of(context).padding.top + kToolbarHeight + 16,
+          top: MediaQuery.of(context).padding.top + 16,
+          left: 16,
+          right: 16,
+          child: Row(
+            children: [
+              const CustomBackButton(),
+              const SizedBox(width: 16),
+              Text(
+                'Escáner de Inventario',
+                style: GoogleFonts.fraunces(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.acentoBronce,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Positioned(
+          top: MediaQuery.of(context).padding.top + 80,
           right: 16,
           child: Column(
             children: [
@@ -387,77 +402,129 @@ class _InventoryScannerScreenState extends State<InventoryScannerScreen>
   // Vista de entrada manual (ID por texto)
   // ============================================================
   Widget _buildManualEntryView() {
-    return Container(
-      color: AppColors.fondoAzulNoche,
-      padding: const EdgeInsets.all(24),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.superficiePorcelana,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextField(
-                controller: _manualIdController,
-                style: GoogleFonts.inter(
-                  color: AppColors.fondoAzulNoche,
-                  fontSize: 15,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'Ingresar ID del QR',
-                  hintStyle: GoogleFonts.inter(
-                    color: AppColors.textoSecundarioGris,
-                    fontSize: 15,
+    return SafeArea(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Row(
+              children: [
+                const CustomBackButton(),
+                const SizedBox(width: 16),
+                Text(
+                  'Escáner de Inventario',
+                  style: GoogleFonts.fraunces(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.acentoBronce,
                   ),
-                  border: InputBorder.none,
                 ),
-                onSubmitted: (_) => _handleManualId(),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: GlassCard(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: _manualIdController,
+                        style: GoogleFonts.inter(
+                          color: AppColors.superficiePorcelana,
+                          fontSize: 15,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Ingresar ID del QR',
+                          hintStyle: GoogleFonts.inter(
+                            color: AppColors.superficiePorcelana.withValues(
+                              alpha: 0.6,
+                            ),
+                            fontSize: 15,
+                          ),
+                          filled: true,
+                          fillColor: AppColors.superficiePorcelana.withValues(
+                            alpha: 0.1,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 18,
+                            horizontal: 20,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(
+                              color: AppColors.superficiePorcelana.withValues(
+                                alpha: 0.2,
+                              ),
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(
+                              color: AppColors.superficiePorcelana.withValues(
+                                alpha: 0.2,
+                              ),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: const BorderSide(
+                              color: AppColors.acentoBronce,
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                        onSubmitted: (_) => _handleManualId(),
+                      ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _handleManualId,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.acentoBronce,
+                            foregroundColor: AppColors.fondoAzulNoche,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: Text(
+                            'VALIDAR ID',
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextButton.icon(
+                        onPressed: () =>
+                            setState(() => _showManualEntry = false),
+                        icon: const Icon(
+                          Icons.qr_code_scanner,
+                          color: AppColors.acentoBronce,
+                          size: 18,
+                        ),
+                        label: Text(
+                          'Usar cámara',
+                          style: GoogleFonts.inter(
+                            color: AppColors.acentoBronce,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _handleManualId,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.acentoBronce,
-                foregroundColor: AppColors.fondoAzulNoche,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                  horizontal: 32,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
-              child: Text(
-                'VALIDAR ID',
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            TextButton.icon(
-              onPressed: () => setState(() => _showManualEntry = false),
-              icon: const Icon(
-                Icons.qr_code_scanner,
-                color: AppColors.acentoBronce,
-                size: 18,
-              ),
-              label: Text(
-                'Usar cámara',
-                style: GoogleFonts.inter(
-                  color: AppColors.acentoBronce,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -19,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen>
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _obscurePassword = true;
 
   late final AnimationController _flightController;
   final GlobalKey _logoPlaceholderKey = GlobalKey();
@@ -204,7 +205,12 @@ class _LoginScreenState extends State<LoginScreen>
                         controller: _passwordController,
                         label: 'Contraseña',
                         hint: '••••••••',
-                        isObscure: true,
+                        isObscure: _obscurePassword,
+                        onToggleObscure: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
                       ),
                       const SizedBox(height: 28),
                       SizedBox(
@@ -298,6 +304,7 @@ class _LoginScreenState extends State<LoginScreen>
     required String hint,
     bool isObscure = false,
     TextInputType? keyboardType,
+    VoidCallback? onToggleObscure,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -329,6 +336,17 @@ class _LoginScreenState extends State<LoginScreen>
               color: AppColors.superficiePorcelana.withValues(alpha: 0.5),
               fontSize: 14,
             ),
+            suffixIcon: onToggleObscure != null
+                ? IconButton(
+                    icon: Icon(
+                      isObscure ? Icons.visibility_off : Icons.visibility,
+                      color: AppColors.superficiePorcelana.withValues(
+                        alpha: 0.7,
+                      ),
+                    ),
+                    onPressed: onToggleObscure,
+                  )
+                : null,
             filled: true,
             fillColor: AppColors.superficiePorcelana.withValues(alpha: 0.10),
             contentPadding: const EdgeInsets.symmetric(

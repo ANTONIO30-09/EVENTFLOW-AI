@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import '../../data/models/guest_model.dart';
 import '../../data/services/database_service.dart';
 import '../check_in/check_in_success_screen.dart';
+import '../../widgets/custom_back_button.dart';
 
 class GuestControlScreen extends StatefulWidget {
   final String eventId;
@@ -65,13 +66,7 @@ class _GuestControlScreenState extends State<GuestControlScreen> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: AppColors.superficiePorcelana,
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
+                  const CustomBackButton(),
                   const SizedBox(width: 8),
                   Text(
                     'Control de Invitados',
